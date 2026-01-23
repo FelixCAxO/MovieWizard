@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Project Specific
+deep_database_*.json
+.env
+
+# OS
+.DS_Store
+Thumbs.db
