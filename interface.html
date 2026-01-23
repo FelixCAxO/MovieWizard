@@ -155,13 +155,22 @@
         <!-- Wizard Container (Steps 1-5) -->
         <div id="wizard-container" class="hidden w-full h-full flex flex-col">
             
-            <!-- Progress Bar -->
+            <!-- Progress & Step Navigation -->
             <div class="flex-none mb-8">
-                <div class="flex justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                    <span id="step-label">Genre</span>
-                    <span id="step-counter">Step 1 of 5</span>
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex gap-2">
+                        <div onclick="goToStep(1)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer transition-all hover:border-sky-500 font-bold text-xs" id="dot-1">1</div>
+                        <div onclick="goToStep(2)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer transition-all hover:border-sky-500 font-bold text-xs" id="dot-2">2</div>
+                        <div onclick="goToStep(3)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer transition-all hover:border-sky-500 font-bold text-xs" id="dot-3">3</div>
+                        <div onclick="goToStep(4)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer transition-all hover:border-sky-500 font-bold text-xs" id="dot-4">4</div>
+                        <div onclick="goToStep(5)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer transition-all hover:border-sky-500 font-bold text-xs" id="dot-5">5</div>
+                    </div>
+                    <div class="text-right">
+                        <span id="step-label" class="block text-xs font-bold text-sky-400 uppercase tracking-widest">Genre</span>
+                        <span id="step-counter" class="text-[10px] text-slate-500 uppercase tracking-wider">Step 1 of 5</span>
+                    </div>
                 </div>
-                <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div class="h-1 bg-slate-800 rounded-full overflow-hidden">
                     <div id="progress-bar" class="h-full bg-sky-500 transition-all duration-500 ease-out w-1/5"></div>
                 </div>
             </div>
@@ -361,19 +370,30 @@
         </div>
 
         <!-- Results View -->
-        <div id="results-view" class="hidden w-full h-full fade-in">
-            <div class="flex justify-between items-end mb-6">
+        <div id="results-view" class="hidden w-full h-full fade-in flex flex-col">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div>
                     <h2 class="text-2xl font-bold text-white">Your Recommendations</h2>
                     <p id="results-sub" class="text-slate-400 text-sm">Based on your filters</p>
                 </div>
-                <button onclick="restartWizard()" class="text-sm bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg border border-slate-700 transition-colors">
-                    <i class="fa-solid fa-rotate-left mr-2"></i>Reset
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="modifyFilters()" class="text-sm bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg border border-slate-700 transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-sliders"></i> Modify
+                    </button>
+                    <button onclick="restartWizard()" class="text-sm bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg border border-red-500/30 transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-left"></i> Reset All
+                    </button>
+                </div>
             </div>
 
-            <div id="movies-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+            <div id="movies-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-10">
                 <!-- Cards injected here -->
+            </div>
+            
+            <div id="results-pagination" class="hidden flex justify-center pb-20">
+                <button id="load-more-btn" onclick="loadMoreResults()" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 px-8 rounded-xl border border-slate-700 transition-all active:scale-95 flex items-center gap-2">
+                    Load More Results <i class="fa-solid fa-chevron-down"></i>
+                </button>
             </div>
             
             <div id="loading-spinner" class="hidden w-full flex justify-center py-20">
@@ -408,18 +428,20 @@
         let apiKey = '';
         let totalMovies = 0;
         let genres = [];
+        let currentPage = 1;
+        let totalPagesAvailable = 1;
         
         // Filters
-        const filters = {
+        let filters = {
             genres: new Set(),
             rating: 6,
             era: 'any', 
             sortBy: 'popularity.desc',
             runtime: { min: 0, max: 999 },
             providers: new Set(),
-            language: '', // NEW
-            country: '',   // NEW
-            keywords: ''   // NEW
+            language: '',
+            country: '',
+            keywords: ''
         };
 
         // DOM Elements
@@ -428,7 +450,8 @@
             wizard: document.getElementById('wizard-container'),
             results: document.getElementById('results-view'),
             footer: document.getElementById('wizard-footer'),
-            liveCounter: document.getElementById('live-counter-container')
+            liveCounter: document.getElementById('live-counter-container'),
+            pagination: document.getElementById('results-pagination')
         };
         
         const ui = {
@@ -445,6 +468,46 @@
 
         function init() {
             // Security: Key is not loaded from storage
+        }
+
+        function resetFilters() {
+            filters = {
+                genres: new Set(),
+                rating: 6,
+                era: 'any', 
+                sortBy: 'popularity.desc',
+                runtime: { min: 0, max: 999 },
+                providers: new Set(),
+                language: '',
+                country: '',
+                keywords: ''
+            };
+            selectedKeywords.clear();
+            currentPage = 1;
+            
+            // Reset UI elements
+            document.querySelectorAll('.genre-checkbox').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.toggle-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('rating-slider').value = 6;
+            ui.ratingVal.innerHTML = `6.0<span class="text-lg text-slate-500">+</span>`;
+            document.getElementById('lang-select').value = '';
+            document.getElementById('country-input').value = '';
+            document.getElementById('keyword-input').value = '';
+            document.getElementById('selected-keywords').innerHTML = '';
+            
+            document.querySelectorAll('.runtime-btn').forEach(btn => {
+                btn.classList.remove('bg-sky-500', 'text-white', 'border-sky-500');
+                btn.classList.add('bg-slate-800', 'border-slate-700');
+            });
+
+            document.querySelectorAll('.era-btn').forEach(btn => {
+                btn.classList.remove('border-sky-500', 'ring-1', 'ring-sky-500/50');
+                btn.classList.add('border-slate-700');
+            });
+            // Reset sorting radio
+            document.querySelector('input[name="sort"][value="popularity.desc"]').checked = true;
+
+            fetchLiveCount();
         }
 
         async function saveApiKey() {
@@ -500,6 +563,20 @@
             // Show current
             const currentBlock = document.getElementById(`step-${currentStep}`);
             currentBlock.classList.remove('hidden');
+            
+            // Step Dots
+            document.querySelectorAll('.step-dot').forEach((dot, idx) => {
+                const stepNum = idx + 1;
+                dot.classList.remove('bg-sky-500', 'border-sky-500', 'text-white', 'text-slate-400');
+                if (stepNum === currentStep) {
+                    dot.classList.add('border-sky-500', 'text-sky-500', 'ring-2', 'ring-sky-500/20');
+                } else if (stepNum < currentStep) {
+                    dot.classList.add('bg-sky-500', 'border-sky-500', 'text-white');
+                } else {
+                    dot.classList.add('text-slate-500');
+                }
+            });
+
             // Reset animation
             currentBlock.classList.remove('slide-up');
             void currentBlock.offsetWidth; // trigger reflow
@@ -511,7 +588,7 @@
             ui.stepCounter.innerText = `Step ${currentStep} of 5`;
 
             // Labels
-            const labels = ['Setup', 'Genre', 'Rating', 'Specs', 'Era', 'Sort'];
+            const labels = ['', 'Genre', 'Rating', 'Specs', 'Era', 'Sort'];
             ui.stepLabel.innerText = labels[currentStep];
 
             // Buttons
@@ -527,6 +604,11 @@
             if (currentStep + dir < 1 || currentStep + dir > 5) return;
             
             currentStep += dir;
+            updateUI();
+        }
+
+        function goToStep(step) {
+            currentStep = step;
             updateUI();
         }
 
@@ -681,7 +763,7 @@
                 btn.classList.remove('border-sky-500', 'ring-1', 'ring-sky-500/50');
                 btn.classList.add('border-slate-700');
             });
-            // Just basic visual highlighting for this demo structure
+            // Highlight current
             event.currentTarget.classList.remove('border-slate-700');
             event.currentTarget.classList.add('border-sky-500', 'ring-1', 'ring-sky-500/50');
             debouncedFetch();
@@ -691,7 +773,7 @@
         document.querySelectorAll('input[name="sort"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 filters.sortBy = e.target.value;
-                debouncedFetch(); // Usually step 4, just check count
+                debouncedFetch();
             });
         });
 
@@ -703,8 +785,8 @@
             debounceTimer = setTimeout(fetchLiveCount, 500);
         }
 
-        function buildApiUrl(isCount = true) {
-            let url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&include_adult=false&include_video=false&page=1`;
+        function buildApiUrl(page = 1) {
+            let url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&include_adult=false&include_video=false&page=${page}`;
             
             // Genres
             if (filters.genres.size > 0) {
@@ -722,7 +804,6 @@
                 url += `&with_watch_providers=${Array.from(filters.providers).join('|')}&watch_region=US`;
             }
 
-            // --- NEW: Language & Country ---
             if (filters.language) {
                 url += `&with_original_language=${filters.language}`;
             }
@@ -732,7 +813,6 @@
             if (filters.keywords) {
                 url += `&with_keywords=${filters.keywords}`;
             }
-            // -------------------------------
 
             // Era
             if (filters.era === 'new') {
@@ -741,7 +821,7 @@
                 url += `&primary_release_date.lte=1999-12-31`;
             }
 
-            // Sort (Only matters for results, not count really, but API allows it)
+            // Sort
             url += `&sort_by=${filters.sortBy}`;
 
             return url;
@@ -750,11 +830,10 @@
         async function fetchLiveCount() {
             ui.countDisplay.classList.add('opacity-50');
             try {
-                const url = buildApiUrl();
+                const url = buildApiUrl(1);
                 const res = await fetch(url);
                 const data = await res.json();
                 
-                // Animate number
                 const count = data.total_results || 0;
                 animateValue(ui.countDisplay, parseInt(ui.countDisplay.innerText.replace(/,/g, '')) || 0, count, 500);
                 
@@ -771,20 +850,30 @@
             views.liveCounter.classList.add('hidden');
             views.results.classList.remove('hidden');
             
+            currentPage = 1;
+            const grid = document.getElementById('movies-grid');
+            grid.innerHTML = '';
+            
+            fetchResults();
+        }
+
+        async function fetchResults() {
             const grid = document.getElementById('movies-grid');
             const spinner = document.getElementById('loading-spinner');
+            const pagination = document.getElementById('results-pagination');
             
-            grid.innerHTML = '';
             spinner.classList.remove('hidden');
+            pagination.classList.add('hidden');
 
             try {
-                const url = buildApiUrl(false);
+                const url = buildApiUrl(currentPage);
                 const res = await fetch(url);
                 const data = await res.json();
                 
                 spinner.classList.add('hidden');
-                
-                if (data.results.length === 0) {
+                totalPagesAvailable = data.total_pages;
+
+                if (data.results.length === 0 && currentPage === 1) {
                     grid.innerHTML = `<div class="col-span-full text-center py-20 text-slate-500">No movies found matching these specific filters. Try loosening the criteria!</div>`;
                     return;
                 }
@@ -799,7 +888,7 @@
                     const card = document.createElement('a');
                     card.href = `https://letterboxd.com/tmdb/${movie.id}`;
                     card.target = '_blank';
-                    card.className = 'movie-card block relative rounded-xl overflow-hidden shadow-xl bg-slate-800 group transition-all hover:ring-2 hover:ring-sky-500';
+                    card.className = 'movie-card block relative rounded-xl overflow-hidden shadow-xl bg-slate-800 group transition-all hover:ring-2 hover:ring-sky-500 fade-in';
                     card.innerHTML = `
                         <div class="aspect-[2/3] w-full relative overflow-hidden">
                             <img src="${poster}" alt="${movie.title}" class="w-full h-full object-cover">
@@ -824,10 +913,19 @@
                     grid.appendChild(card);
                 });
 
+                if (currentPage < totalPagesAvailable) {
+                    pagination.classList.remove('hidden');
+                }
+
             } catch (e) {
                 spinner.classList.add('hidden');
-                grid.innerHTML = `<div class="col-span-full text-center text-red-400">Error loading results. Check console.</div>`;
+                grid.innerHTML += `<div class="col-span-full text-center text-red-400">Error loading results. Check console.</div>`;
             }
+        }
+
+        function loadMoreResults() {
+            currentPage++;
+            fetchResults();
         }
 
         function findGenreNames(ids) {
@@ -838,14 +936,26 @@
             }).join(', ');
         }
 
-        function restartWizard() {
+        function modifyFilters() {
             views.results.classList.add('hidden');
             views.wizard.classList.remove('hidden');
             views.footer.classList.remove('hidden');
             views.footer.classList.add('flex');
             views.liveCounter.classList.remove('hidden');
-            currentStep = 1;
             updateUI();
+        }
+
+        function restartWizard() {
+            if (confirm("Reset all filters and start over?")) {
+                resetFilters();
+                views.results.classList.add('hidden');
+                views.wizard.classList.remove('hidden');
+                views.footer.classList.remove('hidden');
+                views.footer.classList.add('flex');
+                views.liveCounter.classList.remove('hidden');
+                currentStep = 1;
+                updateUI();
+            }
         }
 
         // Helper: Animate Number
