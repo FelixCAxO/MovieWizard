@@ -3,6 +3,7 @@ import json
 import time
 import os
 import sys
+import random
 
 # --- CONFIGURATION -----------------------------------------
 # You can hardcode your key here or input it when running
@@ -42,13 +43,22 @@ def get_movies():
 
     # 2. Filter Setup
     print("\nAvailable Genres:", ", ".join(GENRES.keys()))
-    genre_name = get_user_input("Choose a Genre (or leave empty for all)", "")
+    genre_name = get_user_input("Include Genre (or leave empty)", "")
     genre_id = GENRES.get(genre_name) if genre_name in GENRES else ""
+    
+    exclude_genre_name = get_user_input("Exclude Genre (or leave empty)", "")
+    exclude_genre_id = GENRES.get(exclude_genre_name) if exclude_genre_name in GENRES else ""
+    # Allow raw ID input for testing/advanced users
+    if not exclude_genre_id and exclude_genre_name.isdigit():
+        exclude_genre_id = exclude_genre_name
+
+    cast_id = get_user_input("Cast Member ID (e.g. 287 for Brad Pitt) [Optional]", "")
     
     country = get_user_input("Origin Country Code (e.g., US, JP, FR) [Optional]", "")
     language = get_user_input("Language Code (e.g., en, ja, fr) [Optional]", "")
     keyword_id = get_user_input("Keyword ID (e.g., 9882 for Time Travel) [Optional]", "")
     min_votes = int(get_user_input("Minimum Votes (quality control)", "0"))
+    watch_region = get_user_input("Watch Region (e.g. US, SE, GB)", "US")
     
     # EXCLUDE ADULT CONTENT
     include_adult = False
@@ -60,12 +70,17 @@ def get_movies():
     
     print("Providers: 8=Netflix, 337=Disney+, 9=Amazon Prime, 15=Hulu, 188=YouTube Premium")
     provider_id = get_user_input("Provider ID [Optional]", "")
+    
+    start_year_input = get_user_input("Start Year", "1900")
+    end_year_input = get_user_input("End Year", "2026")
+    
+    sort_order = get_user_input("Sort Order (popularity.desc, vote_average.desc, shuffle)", "popularity.desc")
 
     
     # 3. Main Loop: Iterate by Year
     all_movies = []
-    start_year = 1900
-    end_year = 2026 # Current year + 1 just in case
+    start_year = int(start_year_input)
+    end_year = int(end_year_input)
     
     print(f"\n🚀 Starting Deep Search from {start_year} to {end_year}...")
 
@@ -78,9 +93,13 @@ def get_movies():
 
         while page <= total_pages:
             # Build URL with PRIMARY_RELEASE_YEAR
+            # Note: For shuffle, we fetch popularity.desc usually, then shuffle locally, 
+            # unless we randomise pages. Here we just fetch and shuffle result at the end.
+            api_sort = sort_order if sort_order != "shuffle" else "popularity.desc"
+            
             url = (
                    f"https://api.themoviedb.org/3/discover/movie?"
-                   f"api_key={api_key}&sort_by=popularity.desc"
+                   f"api_key={api_key}&sort_by={api_sort}"
                    f"&include_adult={str(include_adult).lower()}"
                    f"&include_video=false"
                    f"&primary_release_year={year}" 
@@ -89,6 +108,9 @@ def get_movies():
             
             # Apply Filters
             if genre_id: url += f"&with_genres={genre_id}"
+            if exclude_genre_id: url += f"&without_genres={exclude_genre_id}"
+            if cast_id: url += f"&with_cast={cast_id}"
+            
             if language: url += f"&with_original_language={language}"
             if country:  url += f"&with_origin_country={country}"
             if keyword_id: url += f"&with_keywords={keyword_id}"
@@ -97,7 +119,11 @@ def get_movies():
             if max_runtime: url += f"&with_runtime.lte={max_runtime}"
             
             if provider_id:
-                url += f"&with_watch_providers={provider_id}&watch_region=US"
+                url += f"&with_watch_providers={provider_id}"
+            
+            # Always append region if set (default US)
+            if watch_region:
+                url += f"&watch_region={watch_region}"
 
             try:
                 res = requests.get(url)
@@ -142,6 +168,11 @@ def get_movies():
                 
     # 4. Save Final File
     print("\n\n💾 Saving database...")
+    
+    if sort_order == "shuffle":
+        print("🎲 Shuffling results...")
+        random.shuffle(all_movies)
+        
     filename = f"deep_database_{len(all_movies)}.json"
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(all_movies, f, indent=2, ensure_ascii=False)

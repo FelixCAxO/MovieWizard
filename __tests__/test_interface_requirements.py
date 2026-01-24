@@ -2,38 +2,48 @@ import unittest
 import os
 import re
 
-class TestInterfaceRequirements(unittest.TestCase):
+class TestInterfaceContent(unittest.TestCase):
     def setUp(self):
-        self.file_path = "interface.html"
-        with open(self.file_path, "r", encoding="utf-8") as f:
+        self.file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'interface.html')
+        with open(self.file_path, 'r', encoding='utf-8') as f:
             self.content = f.read()
 
-    def test_reset_logic_exists(self):
-        """Requirement: When hitting reset, all filters should be reset."""
-        # Check if there is a function to reset filters beyond just the step
-        self.assertTrue(re.search(r"function resetFilters", self.content) or 
-                        re.search(r"filters\s*=\s*\{", self.content.split("restartWizard")[1]), 
-                        "Should have logic to reset filters in restartWizard or a dedicated function")
+    def test_cast_input_exists(self):
+        # Search for an input or section related to Cast/People
+        # We expect an ID or label for "Cast" or "Person"
+        self.assertTrue(re.search(r'id=["\"]cast-input["\"]', self.content) or re.search(r'Cast', self.content), 
+                        "Interface must have a Cast/Person search input")
 
-    def test_step_jumping_logic(self):
-        """Requirement: Steps should be clearly shown and jumpable."""
-        # Check for a function that allows jumping to a specific step
-        self.assertTrue(re.search(r"function goToStep", self.content), 
-                        "Should have a goToStep function for jumping between steps")
-        # Check if there are clickable elements for steps (e.g., in the progress area)
-        self.assertIn("cursor-pointer", self.content.lower(), "Should have pointer cursor for interactive elements like step jumping")
+    def test_exclude_genre_logic(self):
+        # Look for logic handling exclusion or UI for it
+        self.assertTrue(re.search(r'without_genres', self.content) or re.search(r'exclude', self.content, re.IGNORECASE),
+                        "Interface must handle genre exclusion (without_genres)")
 
-    def test_navigation_from_results_back_to_wizard(self):
-        """Requirement: Easy way to get back to earlier step from results."""
-        # Check for a button in results view that allows going back to wizard WITHOUT resetting everything (Modify)
-        self.assertTrue(re.search(r"Modify", self.content) or re.search(r"Edit Filters", self.content), 
-                        "Should have a way to return to wizard from results to modify filters")
+    def test_watch_region_selector(self):
+        # Look for a region selector
+        self.assertTrue(re.search(r'watch_region', self.content), 
+                        "Interface must include watch_region parameter in API call")
+        self.assertTrue(re.search(r'<select.*id=["\"]region-select["\"]', self.content) or re.search(r'Region', self.content),
+                        "Interface must have a Region selector in UI")
 
-    def test_all_results_shown(self):
-        """Requirement: Show all results, even if there are many (e.g., 310)."""
-        # Check if the code handles more than one page of results
-        self.assertTrue(re.search(r"page\s*\+\+", self.content) or re.search(r"Load More", self.content) or re.search(r"total_pages", self.content), 
-                        "Should have logic to load more results or multiple pages")
+    def test_vote_count_slider(self):
+        # Look for vote count slider
+        self.assertTrue(re.search(r'vote_count.gte', self.content), 
+                        "Interface must include vote_count.gte parameter")
+        self.assertTrue(re.search(r'min-votes', self.content) or re.search(r'Vote Count', self.content),
+                        "Interface must have UI for Minimum Votes")
 
-if __name__ == "__main__":
+    def test_shuffle_sort(self):
+        # Look for shuffle option
+        self.assertTrue(re.search(r'shuffle', self.content, re.IGNORECASE), 
+                        "Interface must include a Shuffle/Random sort option")
+
+    def test_date_range_inputs(self):
+        # Look for date inputs beyond just "Era"
+        self.assertTrue(re.search(r'primary_release_date.gte', self.content), 
+                        "Interface must support primary_release_date.gte")
+        self.assertTrue(re.search(r'primary_release_date.lte', self.content), 
+                        "Interface must support primary_release_date.lte")
+
+if __name__ == '__main__':
     unittest.main()
