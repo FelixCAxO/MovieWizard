@@ -1,9 +1,9 @@
 @echo off
-title CineFind Wizard Starter
+title MovieWizard Starter
 setlocal
 
 echo ==========================================
-echo    🎬 CineFind Wizard is starting...
+echo    🧙‍♂️ MovieWizard is starting...
 echo ==========================================
 echo.
 
