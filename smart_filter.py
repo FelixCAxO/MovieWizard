@@ -27,18 +27,18 @@ def get_user_input(prompt, default=None):
     return input(f"{prompt}: ").strip()
 
 def get_movies():
-    print("--- 🧙‍♂️ MovieWizard (Deep Search) ---")
+    print("--- MovieWizard (Deep Search) ---")
     
     # 1. API Key Setup
     api_key = DEFAULT_API_KEY
     if not api_key:
         api_key = os.environ.get("TMDB_API_KEY")
     if not api_key:
-        print("💡 Hint: Get your free API key at https://www.themoviedb.org/settings/api")
+        print("Hint: Get your free API key at https://www.themoviedb.org/settings/api")
         api_key = get_user_input("Enter TMDb API Key")
     
     if not api_key:
-        print("❌ Error: API Key is required.")
+        print("Error: API Key is required.")
         return
 
     # 2. Filter Setup
@@ -82,14 +82,14 @@ def get_movies():
     start_year = int(start_year_input)
     end_year = int(end_year_input)
     
-    print(f"\n🚀 Starting Deep Search from {start_year} to {end_year}...")
+    print(f"\nStarting Deep Search from {start_year} to {end_year}...")
 
     for year in range(start_year, end_year + 1):
         page = 1
         total_pages = 1
         year_movies_count = 0
         
-        sys.stdout.write(f"\n📅 Scanning Year {year}...")
+        sys.stdout.write(f"\nScanning Year {year}...")
 
         while page <= total_pages:
             # Build URL with PRIMARY_RELEASE_YEAR
@@ -157,7 +157,9 @@ def get_movies():
                     year_movies_count += 1
 
                 # Visual Feedback
-                sys.stdout.write(f"\r📅 Year {year}: Found {year_movies_count} movies (Total: {len(all_movies)})")
+                sys.stdout.write(
+                    f"\rYear {year}: Found {year_movies_count} movies (Total: {len(all_movies)})"
+                )
                 sys.stdout.flush()
                 
                 page += 1
@@ -167,17 +169,17 @@ def get_movies():
                 break
                 
     # 4. Save Final File
-    print("\n\n💾 Saving database...")
+    print("\n\nSaving database...")
     
     if sort_order == "shuffle":
-        print("🎲 Shuffling results...")
+        print("Shuffling results...")
         random.shuffle(all_movies)
         
     filename = f"deep_database_{len(all_movies)}.json"
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(all_movies, f, indent=2, ensure_ascii=False)
     
-    print(f"✅ DONE! Saved {len(all_movies)} movies to '{filename}'")
+    print(f"DONE! Saved {len(all_movies)} movies to '{filename}'")
 
 if __name__ == "__main__":
     get_movies()

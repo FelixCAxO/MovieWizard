@@ -10,7 +10,7 @@ echo -ne "\033]0;MovieWizard Starter\007"
 
 clear
 echo "=========================================="
-echo "   🧙‍♂️ MovieWizard is starting..."
+echo "   MovieWizard is starting..."
 echo "=========================================="
 echo
 

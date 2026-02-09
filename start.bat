@@ -3,7 +3,7 @@ title MovieWizard Starter
 setlocal
 
 echo ==========================================
-echo    🧙‍♂️ MovieWizard is starting...
+echo    MovieWizard is starting...
 echo ==========================================
 echo.
 
