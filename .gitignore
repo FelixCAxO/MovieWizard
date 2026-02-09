@@ -5,10 +5,31 @@ __pycache__/
 .venv/
 venv/
 ENV/
+.env
+.env.*
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+pip-wheel-metadata/
+.ipynb_checkpoints/
+*.log
 
 # Project Specific
 deep_database_*.json
-.env
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (if added later)
+node_modules/
 
 # OS
 .DS_Store
