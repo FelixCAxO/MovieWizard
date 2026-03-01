@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,162 +9,64 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: #0f172a;
-            color: #e2e8f0;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569; 
-        }
-
-        /* Animations */
-        .fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
-        }
-        
-        .slide-up {
-            animation: slideUp 0.4s ease-out forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .step-transition {
-            transition: all 0.3s ease-in-out;
-        }
-
-        /* Range Slider Styling */
-        input[type=range] {
-            -webkit-appearance: none; 
-            background: transparent; 
-        }
-        
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 24px;
-            width: 24px;
-            border-radius: 50%;
-            background: #38bdf8;
-            cursor: pointer;
-            margin-top: -10px; 
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-        }
-
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: #334155;
-            border-radius: 2px;
-        }
-
-        /* Card Hover Effects */
-        .movie-card:hover .overlay {
-            opacity: 1;
-        }
-        .movie-card {
-            transition: transform 0.2s;
-        }
-        .movie-card:hover {
-            transform: scale(1.02);
-        }
-        
-        /* Checkbox styling hidden, using label for UI */
-        /* Dynamic coloring handled via JS classes now */
-        .genre-checkbox:checked + label {
-            /* minimal default to indicate selection if JS fails, but JS will override */
-            font-weight: bold;
-        }
-
-        .toggle-checkbox:checked + label {
-            background-color: #38bdf8;
-            border-color: #38bdf8;
-            color: #0f172a;
-        }
-
+        body { font-family: 'Outfit', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .slide-up { animation: slideUp 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #38bdf8; cursor: pointer; margin-top: -10px; box-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+        .movie-card:hover .overlay { opacity: 1; }
+        .movie-card { transition: transform 0.2s; }
+        .movie-card:hover { transform: scale(1.02); }
+        .genre-checkbox:checked+label { font-weight: bold; }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
 
-    <!-- Top Navigation / Header -->
+<body class="h-screen flex flex-col overflow-hidden">
+    <!-- Header -->
     <header class="flex-none p-6 flex justify-between items-center bg-slate-900 border-b border-slate-800 z-10">
         <div class="flex items-center gap-2">
             <i class="fa-solid fa-wand-magic-sparkles text-sky-400 text-2xl"></i>
             <h1 class="text-xl font-bold tracking-tight text-white">Movie<span class="text-sky-400">Wizard</span></h1>
         </div>
-        
-        <div id="live-counter-container" class="hidden flex items-center gap-3 bg-slate-800 px-4 py-2 rounded-full border border-slate-700 transition-all duration-300">
-            <span class="text-xs text-slate-400 uppercase font-semibold tracking-wider">Matches</span>
-            <div class="flex items-center gap-2">
-                <span class="relative flex h-2 w-2">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
-                </span>
-                <span id="live-count" class="text-sky-400 font-mono font-bold text-lg">...</span>
-            </div>
+        <div id="live-counter-container" class="hidden flex items-center gap-3 bg-slate-800 px-4 py-2 rounded-full border border-slate-700">
+            <span class="text-xs text-slate-400 uppercase font-semibold">Matches</span>
+            <span id="live-count" class="text-sky-400 font-mono font-bold text-lg">0</span>
         </div>
     </header>
 
-    <!-- Main Content Area -->
     <main class="flex-grow relative overflow-y-auto w-full max-w-4xl mx-auto p-4 md:p-8 flex flex-col justify-center">
-        
-        <!-- Step 0: API Key Input -->
+        <!-- Step 0: API Key -->
         <div id="step-0" class="step-content w-full max-w-md mx-auto fade-in">
             <div class="text-center mb-8">
                 <div class="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-700">
                     <i class="fa-solid fa-key text-2xl text-sky-400"></i>
                 </div>
                 <h2 class="text-2xl font-bold mb-2">Setup API Key</h2>
-                <p class="text-slate-400">To fetch real-time data, this app requires a TMDb API Key (v3).</p>
+                <p class="text-slate-400 text-sm">Enter your TMDb API Key (v3) to begin.</p>
             </div>
-            
-            <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 backdrop-blur-sm">
-                <label class="block text-sm font-medium text-slate-300 mb-2">Enter TMDb API Key</label>
-                <input type="text" id="api-key-input" placeholder="e.g. a1b2c3d4..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors mb-4">
-                
-                <button onclick="saveApiKey()" class="w-full bg-sky-500 hover:bg-sky-400 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-sky-500/20 active:scale-95">
-                    Start Wizard
-                </button>
-                
-                <p class="text-center mt-4 text-xs text-slate-500">
-                    Don't have one? <a href="https://www.themoviedb.org/settings/api" target="_blank" class="text-sky-400 hover:underline">Get it here</a>. Keys are stored locally in your browser.
-                </p>
+            <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                <input type="text" id="api-key-input" placeholder="e.g. d392d5b8..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sky-500 mb-4">
+                <button onclick="saveApiKey(event)" class="w-full bg-sky-500 hover:bg-sky-400 text-white font-semibold py-3 rounded-xl transition-all">Start Wizard</button>
             </div>
         </div>
 
-        <!-- Wizard Container (Steps 1-5) -->
+        <!-- Wizard -->
         <div id="wizard-container" class="hidden w-full h-full flex flex-col">
-            
-            <!-- Progress & Step Navigation -->
             <div class="flex-none mb-8">
                 <div class="flex justify-between items-center mb-4">
                     <div class="flex gap-2">
-                        <div onclick="goToStep(1)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer transition-all hover:border-sky-500 font-bold text-xs" id="dot-1">1</div>
-                        <div onclick="goToStep(2)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer transition-all hover:border-sky-500 font-bold text-xs" id="dot-2">2</div>
-                        <div onclick="goToStep(3)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer transition-all hover:border-sky-500 font-bold text-xs" id="dot-3">3</div>
-                        <div onclick="goToStep(4)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer transition-all hover:border-sky-500 font-bold text-xs" id="dot-4">4</div>
-                        <div onclick="goToStep(5)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer transition-all hover:border-sky-500 font-bold text-xs" id="dot-5">5</div>
+                        <div onclick="goToStep(1)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer font-bold text-xs" id="dot-1">1</div>
+                        <div onclick="goToStep(2)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer font-bold text-xs" id="dot-2">2</div>
+                        <div onclick="goToStep(3)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer font-bold text-xs" id="dot-3">3</div>
+                        <div onclick="goToStep(4)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer font-bold text-xs" id="dot-4">4</div>
+                        <div onclick="goToStep(5)" class="step-dot w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center cursor-pointer font-bold text-xs" id="dot-5">5</div>
                     </div>
                     <div class="text-right">
                         <span id="step-label" class="block text-xs font-bold text-sky-400 uppercase tracking-widest">Genre</span>
@@ -171,1006 +74,314 @@
                     </div>
                 </div>
                 <div class="h-1 bg-slate-800 rounded-full overflow-hidden">
-                    <div id="progress-bar" class="h-full bg-sky-500 transition-all duration-500 ease-out w-1/5"></div>
+                    <div id="progress-bar" class="h-full bg-sky-500 transition-all duration-500 w-1/5"></div>
                 </div>
             </div>
 
-            <!-- Dynamic Steps -->
-            <div class="flex-grow flex flex-col justify-center">
-                
+            <div class="flex-grow overflow-y-auto pr-2 custom-scrollbar">
                 <!-- Step 1: Genres -->
-                <div id="step-1" class="step-block slide-up">
-                    <div class="flex justify-between items-end mb-2">
-                        <h2 class="text-3xl md:text-4xl font-bold">Mood Filter</h2>
-                        <button onclick="toggleGenreMode()" id="genre-mode-btn" class="text-xs uppercase font-bold tracking-widest px-3 py-1 rounded bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition-colors">
-                            Mode: Include
-                        </button>
-                    </div>
-                    <p class="text-slate-400 mb-8 text-lg">Select genres. <span id="genre-mode-desc" class="text-sky-400">Green = Include</span>.</p>
-                    
-                    <div id="genre-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                        <!-- Genres injected here -->
-                    </div>
-                </div>
-
-                <!-- Step 2: Rating -->
-                <div id="step-2" class="step-block hidden slide-up">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-2">Quality Control</h2>
-                    <p class="text-slate-400 mb-8 text-lg">Filter by score and popularity.</p>
-                    
-                    <!-- Score Slider -->
-                    <div class="px-4 py-6 bg-slate-800/50 rounded-3xl border border-slate-700 mb-6">
-                        <div class="flex justify-between items-end mb-4">
-                            <span class="text-slate-400 text-sm font-bold uppercase tracking-wider">Min Score</span>
-                            <span id="rating-val" class="text-3xl font-bold text-sky-400">6.0<span class="text-lg text-slate-500">+</span></span>
-                        </div>
-                        <input type="range" id="rating-slider" min="0" max="9" step="0.5" value="6" class="w-full mb-2">
-                    </div>
-
-                    <!-- Vote Count Slider -->
-                    <div class="px-4 py-6 bg-slate-800/50 rounded-3xl border border-slate-700">
-                        <div class="flex justify-between items-end mb-4">
-                            <span class="text-slate-400 text-sm font-bold uppercase tracking-wider">Min Votes</span>
-                            <span id="votes-val" class="text-3xl font-bold text-sky-400">0<span class="text-lg text-slate-500">+</span></span>
-                        </div>
-                        <input type="range" id="votes-slider" min="0" max="5000" step="50" value="0" class="w-full mb-2">
-                        <div class="flex justify-between text-xs text-slate-500 mt-2 font-mono">
-                            <span>OBSCURE</span>
-                            <span>POPULAR</span>
-                            <span>MAINSTREAM</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 3: Advanced (Runtime, Providers, Keywords) -->
-                <div id="step-3" class="step-block hidden slide-up">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-2">Specifics</h2>
-                    <p class="text-slate-400 mb-6 text-lg">Fine-tune your search criteria.</p>
-                    
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-white mb-2"><i class="fa-regular fa-clock mr-2 text-sky-400"></i>Duration</h3>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="setRuntime(0, 90)" class="runtime-btn p-3 bg-slate-800 border border-slate-700 rounded-xl hover:border-sky-500 transition-colors text-sm">Short (<90m)</button>
-                            <button onclick="setRuntime(90, 150)" class="runtime-btn p-3 bg-slate-800 border border-slate-700 rounded-xl hover:border-sky-500 transition-colors text-sm">Standard</button>
-                            <button onclick="setRuntime(150, 999)" class="runtime-btn p-3 bg-slate-800 border border-slate-700 rounded-xl hover:border-sky-500 transition-colors text-sm">Epic (>2.5h)</button>
-                        </div>
-                    </div>
-
-                    <div class="mb-6 grid grid-cols-2 gap-4">
+                <div id="step-1" class="step-block space-y-6">
+                    <div class="flex justify-between items-center">
                         <div>
-                            <label class="block text-sm font-semibold text-white mb-2"><i class="fa-solid fa-globe mr-2 text-sky-400"></i>Language</label>
-                            <select id="lang-select" onchange="setLanguage(this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-sky-500">
-                                <option value="">All Languages</option>
-                                <option value="en">English</option>
-                                <option value="de">German</option>
-                                <option value="fr">French</option>
-                                <option value="es">Spanish</option>
-                                <option value="ja">Japanese</option>
-                                <option value="ko">Korean</option>
-                                <option value="hi">Hindi</option>
-                                <option value="sv">Swedish</option>
+                            <h3 class="text-xl font-bold">What's the vibe?</h3>
+                            <p id="genre-mode-desc" class="text-sm text-slate-400">Green = Include, Red = Exclude</p>
+                        </div>
+                        <button onclick="toggleGenreMode()" id="genre-mode-btn" class="px-4 py-2 rounded-lg border border-emerald-500 text-emerald-400 text-xs font-bold bg-emerald-500/10">Mode: Include</button>
+                    </div>
+                    <div id="genre-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+                </div>
+
+                <!-- Step 2: Rating & Votes -->
+                <div id="step-2" class="step-block hidden space-y-8">
+                    <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                        <div class="flex justify-between mb-2"><span class="text-slate-400 font-medium text-sm">Minimum Score</span><span id="rating-val" class="text-sky-400 font-bold">6.0+</span></div>
+                        <input type="range" id="rating-slider" min="0" max="10" step="0.5" value="6" class="w-full">
+                    </div>
+                    <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                        <div class="flex justify-between mb-2"><span class="text-slate-400 font-medium text-sm">Score Ceiling</span><span id="rating-max-val" class="text-sky-400 font-bold">10.0-</span></div>
+                        <input type="range" id="rating-max-slider" min="0" max="10" step="0.5" value="10" class="w-full">
+                    </div>
+                    <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                        <div class="flex justify-between mb-2"><span class="text-slate-400 font-medium text-sm">Minimum Votes</span><span id="votes-val" class="text-sky-400 font-bold">0+</span></div>
+                        <input type="range" id="votes-slider" min="0" max="5000" step="50" value="0" class="w-full">
+                    </div>
+                </div>
+
+                <!-- Step 3: Advanced Specs -->
+                <div id="step-3" class="step-block hidden space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-4">
+                            <label class="block text-xs font-bold text-slate-500 uppercase">Watch Region</label>
+                            <select id="region-select" onchange="setRegion(this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white">
+                                <option value="US">United States</option><option value="GB">United Kingdom</option><option value="SE">Sweden</option><option value="DE">Germany</option><option value="FR">France</option><option value="JP">Japan</option><option value="KR">South Korea</option>
+                            </select>
+                            <label class="block text-xs font-bold text-slate-500 uppercase">Original Language</label>
+                            <select id="lang-select" onchange="setLanguage(this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white">
+                                <option value="">Any Language</option><option value="en">English</option><option value="ja">Japanese</option><option value="fr">French</option><option value="es">Spanish</option><option value="ko">Korean</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-white mb-2"><i class="fa-solid fa-flag mr-2 text-sky-400"></i>Origin</label>
-                            <input type="text" id="country-input" placeholder="Code (e.g. US, FR)" oninput="setCountry(this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-sky-500">
-                        </div>
-                    </div>
-                    
-                    <!-- Cast Search -->
-                    <div class="mb-6">
-                         <label class="block text-sm font-semibold text-white mb-2"><i class="fa-solid fa-user mr-2 text-sky-400"></i>Cast & Crew (ID)</label>
-                         <div class="relative">
-                            <input type="text" id="cast-input" placeholder="Search person (e.g. Harrison Ford)..." oninput="handleCastInput(this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-sky-500">
-                            <div id="cast-suggestions" class="hidden absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 max-h-48 overflow-y-auto"></div>
-                        </div>
-                        <div id="selected-cast" class="flex flex-wrap gap-2 mt-3"></div>
-                    </div>
-
-                    <div class="mb-6">
-                        <div class="flex items-center justify-between mb-2">
-                            <label class="block text-sm font-semibold text-white"><i class="fa-solid fa-tags mr-2 text-sky-400"></i>Keywords (ID)</label>
-                            <div class="group relative">
-                                <span class="text-xs text-slate-500 hover:text-sky-400 cursor-help transition-colors flex items-center gap-1">
-                                    <i class="fa-solid fa-circle-info"></i> How themes work?
-                                </span>
-                                <div class="absolute right-0 bottom-full mb-2 w-72 p-4 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 text-xs leading-relaxed">
-                                    <p class="font-bold text-sky-400 mb-2 text-sm">Targeted Theme Search</p>
-                                    <p class="text-slate-300 mb-3">Keywords are specific plot elements, tropes, or styles. Unlike genres, they let you find exact niches.</p>
-                                    
-                                    <p class="font-bold text-white mb-1">Try searching for:</p>
-                                    <div class="flex flex-wrap gap-1 mb-3">
-                                        <span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-400 border border-slate-700">Cyberpunk</span>
-                                        <span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-400 border border-slate-700">Time Loop</span>
-                                        <span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-400 border border-slate-700">Based on Comic</span>
-                                        <span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-400 border border-slate-700">Neo-Noir</span>
-                                        <span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-400 border border-slate-700">Space Opera</span>
-                                    </div>
-                                    
-                                    <div class="pt-2 border-t border-slate-800 text-sky-500/80 font-medium">
-                                        <i class="fa-solid fa-lightbulb mr-1"></i> Tip: Select multiple themes to narrow your search (e.g. "Space" + "Horror").
-                                    </div>
-                                </div>
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-slate-500 uppercase">Runtime</label>
+                            <div class="grid grid-cols-1 gap-2">
+                                <button onclick="setRuntime(event, 0, 90)" class="runtime-btn p-3 bg-slate-800 border border-slate-700 rounded-xl text-sm text-left flex justify-between">Short <span>&lt; 90m</span></button>
+                                <button onclick="setRuntime(event, 90, 150)" class="runtime-btn p-3 bg-slate-800 border border-slate-700 rounded-xl text-sm text-left flex justify-between">Standard <span>90-150m</span></button>
+                                <button onclick="setRuntime(event, 150, 999)" class="runtime-btn p-3 bg-slate-800 border border-slate-700 rounded-xl text-sm text-left flex justify-between">Epic <span>2.5h+</span></button>
                             </div>
                         </div>
-                        <div class="relative">
-                            <input type="text" id="keyword-input" placeholder="Search themes (e.g. Noir, Space)..." oninput="handleKeywordInput(this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-sky-500">
-                            <div id="keyword-suggestions" class="hidden absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 max-h-48 overflow-y-auto">
-                                <!-- Suggestions injected here -->
-                            </div>
-                        </div>
-                        <div id="selected-keywords" class="flex flex-wrap gap-2 mt-3">
-                            <!-- Selected keywords as tags -->
-                        </div>
-                        <p class="text-xs text-slate-500 mt-1">Search and select themes to find specific niches.</p>
                     </div>
 
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-lg font-semibold text-white"><i class="fa-solid fa-tv mr-2 text-sky-400"></i>Streaming</h3>
-                            <select id="region-select" onchange="setRegion(this.value)" class="bg-slate-800 text-xs text-white border border-slate-700 rounded px-2 py-1 focus:outline-none focus:border-sky-500">
-                                <option value="US">US</option>
-                                <option value="SE">SE (Sweden)</option>
-                                <option value="GB">GB (UK)</option>
-                                <option value="CA">CA</option>
-                                <option value="AU">AU</option>
-                                <option value="DE">DE</option>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-500 uppercase mb-3">Certification (Age Rating)</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <select id="cert-country" onchange="setCertCountry(this.value)" class="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm">
+                                <option value="">Select Country...</option><option value="US">USA (MPAA)</option><option value="GB">UK (BBFC)</option><option value="DE">Germany (FSK)</option>
+                            </select>
+                            <select id="certification" onchange="setCertification(this.value)" class="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm">
+                                <option value="">Select Rating...</option>
                             </select>
                         </div>
-                        <div class="flex gap-3 overflow-x-auto pb-2">
-                            <div class="flex-none">
-                                <input type="checkbox" id="prov-8" class="toggle-checkbox hidden" onchange="toggleProvider(8)">
-                                <label for="prov-8" class="block px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700 transition-colors text-sm font-medium">Netflix</label>
-                            </div>
-                            <div class="flex-none">
-                                <input type="checkbox" id="prov-337" class="toggle-checkbox hidden" onchange="toggleProvider(337)">
-                                <label for="prov-337" class="block px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700 transition-colors text-sm font-medium">Disney+</label>
-                            </div>
-                            <div class="flex-none">
-                                <input type="checkbox" id="prov-9" class="toggle-checkbox hidden" onchange="toggleProvider(9)">
-                                <label for="prov-9" class="block px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700 transition-colors text-sm font-medium">Prime</label>
-                            </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h4 class="text-xs font-bold text-slate-500 uppercase">Streaming Providers</h4>
+                        <div id="provider-grid" class="grid grid-cols-3 md:grid-cols-5 gap-3"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="relative"><label class="block text-xs font-bold text-slate-500 uppercase mb-2">Include Keywords</label>
+                            <input type="text" id="keyword-input" placeholder="Search..." oninput="handleTagInput(event, 'keyword')" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm">
+                            <div id="keyword-suggestions" class="absolute top-full left-0 right-0 bg-slate-900 border border-slate-700 rounded-xl mt-1 z-50 hidden max-h-40 overflow-y-auto"></div>
+                            <div id="selected-keywords" class="flex flex-wrap gap-2 mt-2"></div>
+                        </div>
+                        <div class="relative"><label class="block text-xs font-bold text-slate-500 uppercase mb-2">Include Cast/People</label>
+                            <input type="text" id="person-input" placeholder="Search actor..." oninput="handleTagInput(event, 'person')" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm">
+                            <div id="person-suggestions" class="absolute top-full left-0 right-0 bg-slate-900 border border-slate-700 rounded-xl mt-1 z-50 hidden max-h-40 overflow-y-auto"></div>
+                            <div id="selected-person" class="flex flex-wrap gap-2 mt-2"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Step 4: Release Year -->
-                <div id="step-4" class="step-block hidden slide-up">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-2">Time Travel</h2>
-                    <p class="text-slate-400 mb-8 text-lg">Prefer modern hits or golden classics?</p>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <button onclick="setEra('new')" class="era-btn group relative p-6 bg-slate-800 border-2 border-slate-700 rounded-2xl hover:border-sky-500 transition-all text-left">
-                            <div class="mb-4 w-12 h-12 rounded-full bg-slate-900 flex items-center justify-center group-hover:bg-sky-500/20">
-                                <i class="fa-solid fa-rocket text-sky-400"></i>
-                            </div>
-                            <h3 class="text-xl font-bold mb-1 group-hover:text-sky-400">Modern Era</h3>
-                            <p class="text-sm text-slate-500">Movies from 2010 onwards.</p>
-                        </button>
-
-                        <button onclick="setEra('classic')" class="era-btn group relative p-6 bg-slate-800 border-2 border-slate-700 rounded-2xl hover:border-sky-500 transition-all text-left">
-                            <div class="mb-4 w-12 h-12 rounded-full bg-slate-900 flex items-center justify-center group-hover:bg-sky-500/20">
-                                <i class="fa-solid fa-hourglass-half text-sky-400"></i>
-                            </div>
-                            <h3 class="text-xl font-bold mb-1 group-hover:text-sky-400">The Classics</h3>
-                            <p class="text-sm text-slate-500">Golden oldies (Pre-2000s).</p>
-                        </button>
-                    </div>
-                    
-                    <div class="p-6 bg-slate-800/50 rounded-2xl border border-slate-700">
-                        <label class="block text-sm font-semibold text-white mb-3">Custom Date Range</label>
-                        <div class="flex gap-4">
-                            <div class="w-1/2">
-                                <span class="text-xs text-slate-500 uppercase">From</span>
-                                <input type="date" id="date-from" onchange="setCustomDate()" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-500">
-                            </div>
-                            <div class="w-1/2">
-                                <span class="text-xs text-slate-500 uppercase">To</span>
-                                <input type="date" id="date-to" onchange="setCustomDate()" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-500">
-                            </div>
-                        </div>
+                <!-- Step 4: Era -->
+                <div id="step-4" class="step-block hidden space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button onclick="setEra(event, 'any')" class="era-btn p-6 bg-slate-800 border border-slate-700 rounded-2xl text-left">Any Era</button>
+                        <button onclick="setEra(event, 'new')" class="era-btn p-6 bg-slate-800 border border-slate-700 rounded-2xl text-left">Modern (2010+)</button>
+                        <button onclick="setEra(event, 'classic')" class="era-btn p-6 bg-slate-800 border border-slate-700 rounded-2xl text-left">Classics (&lt;2000)</button>
                     </div>
                 </div>
 
-                <!-- Step 5: Sorting -->
-                <div id="step-5" class="step-block hidden slide-up">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-2">Final Polish</h2>
-                    <p class="text-slate-400 mb-8 text-lg">How should we sort the findings?</p>
-                    
-                    <div class="space-y-3">
-                        <label class="flex items-center p-4 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-750 transition-colors">
-                            <input type="radio" name="sort" value="popularity.desc" checked class="w-5 h-5 text-sky-500 bg-slate-900 border-slate-600 focus:ring-sky-500 focus:ring-2">
-                            <div class="ml-4">
-                                <span class="block font-medium">Most Popular</span>
-                                <span class="text-sm text-slate-500">Trending movies right now</span>
-                            </div>
-                        </label>
-                        <label class="flex items-center p-4 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-750 transition-colors">
-                            <input type="radio" name="sort" value="vote_average.desc" class="w-5 h-5 text-sky-500 bg-slate-900 border-slate-600 focus:ring-sky-500 focus:ring-2">
-                            <div class="ml-4">
-                                <span class="block font-medium">Top Rated</span>
-                                <span class="text-sm text-slate-500">Critically acclaimed gems</span>
-                            </div>
-                        </label>
-                        <label class="flex items-center p-4 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-750 transition-colors">
-                            <input type="radio" name="sort" value="primary_release_date.desc" class="w-5 h-5 text-sky-500 bg-slate-900 border-slate-600 focus:ring-sky-500 focus:ring-2">
-                            <div class="ml-4">
-                                <span class="block font-medium">Newest First</span>
-                                <span class="text-sm text-slate-500">Fresh from the cinema</span>
-                            </div>
-                        </label>
-                        <label class="flex items-center p-4 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-750 transition-colors">
-                            <input type="radio" name="sort" value="shuffle" class="w-5 h-5 text-sky-500 bg-slate-900 border-slate-600 focus:ring-sky-500 focus:ring-2">
-                            <div class="ml-4">
-                                <span class="block font-medium">Surprise Me (Shuffle)</span>
-                                <span class="text-sm text-slate-500">Randomized picks from top results</span>
-                            </div>
-                        </label>
-                    </div>
+                <!-- Step 5: Sort -->
+                <div id="step-5" class="step-block hidden space-y-4">
+                    <label class="flex items-center p-4 bg-slate-800 border border-slate-700 rounded-2xl cursor-pointer hover:bg-slate-700">
+                        <input type="radio" name="sort" value="popularity.desc" checked class="mr-4 w-5 h-5 accent-sky-500">
+                        <div class="font-bold text-white">Popularity</div>
+                    </label>
+                    <label class="flex items-center p-4 bg-slate-800 border border-slate-700 rounded-2xl cursor-pointer hover:bg-slate-700">
+                        <input type="radio" name="sort" value="vote_average.desc" class="mr-4 w-5 h-5 accent-sky-500">
+                        <div class="font-bold text-white">Top Rated</div>
+                    </label>
+                    <label class="flex items-center p-4 bg-slate-800 border border-slate-700 rounded-2xl cursor-pointer hover:bg-slate-700">
+                        <input type="radio" name="sort" value="revenue.desc" class="mr-4 w-5 h-5 accent-sky-500">
+                        <div class="font-bold text-white">Revenue (Blockbusters)</div>
+                    </label>
+                    <label class="flex items-center p-4 bg-slate-800 border border-slate-700 rounded-2xl cursor-pointer hover:bg-slate-700">
+                        <input type="radio" name="sort" value="shuffle" class="mr-4 w-5 h-5 accent-sky-500">
+                        <div class="font-bold text-white">Shuffle Results</div>
+                    </label>
                 </div>
-
             </div>
         </div>
 
-        <!-- Results View -->
-        <div id="results-view" class="hidden w-full h-full fade-in flex flex-col">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                <div>
-                    <h2 class="text-2xl font-bold text-white">Your Recommendations</h2>
-                    <p id="results-sub" class="text-slate-400 text-sm">Based on your filters</p>
-                </div>
+        <!-- Results -->
+        <div id="results-view" class="hidden w-full h-full flex flex-col fade-in">
+            <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Matches</h2>
                 <div class="flex gap-2">
-                    <button onclick="modifyFilters()" class="text-sm bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg border border-slate-700 transition-colors flex items-center gap-2">
-                        <i class="fa-solid fa-sliders"></i> Modify
-                    </button>
-                    <button onclick="restartWizard()" class="text-sm bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg border border-red-500/30 transition-colors flex items-center gap-2">
-                        <i class="fa-solid fa-rotate-left"></i> Reset All
-                    </button>
+                    <button onclick="modifyFilters()" class="bg-slate-800 px-4 py-2 rounded-xl text-sm font-bold border border-slate-700">Modify</button>
+                    <button onclick="location.reload()" class="bg-slate-800 px-4 py-2 rounded-xl text-sm font-bold border border-slate-700">Reset</button>
                 </div>
             </div>
-
-            <div id="movies-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-10">
-                <!-- Cards injected here -->
-            </div>
-            
-            <div id="results-pagination" class="hidden flex justify-center pb-20">
-                <button id="load-more-btn" onclick="loadMoreResults()" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 px-8 rounded-xl border border-slate-700 transition-all active:scale-95 flex items-center gap-2">
-                    Load More Results <i class="fa-solid fa-chevron-down"></i>
-                </button>
-            </div>
-            
-            <div id="loading-spinner" class="hidden w-full flex justify-center py-20">
-                <i class="fa-solid fa-circle-notch fa-spin text-4xl text-sky-500"></i>
-            </div>
+            <div id="movies-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 overflow-y-auto pr-2 pb-12"></div>
+            <div id="loading-spinner" class="hidden py-20 text-center"><p class="animate-pulse text-sky-400 font-bold">Brewing matches...</p></div>
+            <div id="results-pagination" class="hidden py-8 text-center"><button onclick="loadMoreResults(event)" class="bg-sky-500 px-8 py-3 rounded-xl font-bold active:scale-95">Load More Results</button></div>
         </div>
-
     </main>
 
-    <!-- Navigation Footer -->
     <footer id="wizard-footer" class="hidden flex-none p-6 border-t border-slate-800 bg-slate-900/95 backdrop-blur z-20">
-        <div class="max-w-4xl mx-auto w-full flex justify-between items-center">
-            
-            <button id="back-btn" onclick="changeStep(-1)" class="text-slate-400 hover:text-white font-medium transition-colors px-4 py-2 disabled:opacity-0 disabled:pointer-events-none">
-                Back
-            </button>
-
-            <div class="flex gap-3">
-                <button onclick="showResults()" class="hidden md:block px-6 py-3 rounded-xl text-slate-300 hover:text-white font-medium hover:bg-slate-800 transition-colors">
-                    Skip to Results
-                </button>
-                <button id="next-btn" onclick="changeStep(1)" class="bg-sky-500 hover:bg-sky-400 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-sky-500/20 transition-all active:scale-95 flex items-center gap-2">
-                    Next <i class="fa-solid fa-arrow-right text-sm"></i>
-                </button>
-            </div>
+        <div class="max-w-4xl mx-auto w-full flex justify-between">
+            <button id="back-btn" onclick="changeStep(-1)" class="text-slate-400 px-4 py-2 disabled:opacity-0">Back</button>
+            <button id="next-btn" onclick="changeStep(1)" class="bg-sky-500 hover:bg-sky-400 text-white font-bold py-3 px-8 rounded-xl">Next</button>
         </div>
     </footer>
 
     <script>
-        // State
-        let currentStep = 1;
-        let apiKey = '';
-        let totalMovies = 0;
-        let genres = [];
-        let currentPage = 1;
-        let totalPagesAvailable = 1;
+        // --- Configuration & State ---
+        let currentStep = 1, apiKey = '', genres = [], currentPage = 1, totalPagesAvailable = 1;
+        let filters = { genres: new Set(), excludedGenres: new Set(), genreMode: 'include', rating: 6, ratingMax: 10, minVotes: 0, era: 'any', sortBy: 'popularity.desc', runtime: { min: 0, max: 999 }, providers: new Set(), watchRegion: 'US', language: '', keywords: '', person: '', certCountry: '', certification: '' };
         
-        // Filters
-        let filters = {
-            genres: new Set(),
-            excludedGenres: new Set(),
-            genreMode: 'include', // 'include' or 'exclude'
-            rating: 6,
-            minVotes: 0,
-            era: 'any', 
-            dateRange: { from: '', to: '' },
-            sortBy: 'popularity.desc',
-            runtime: { min: 0, max: 999 },
-            providers: new Set(),
-            watchRegion: 'US',
-            language: '',
-            country: '',
-            keywords: '',
-            cast: ''
-        };
+        const providers = [{id: 8, name: 'Netflix'}, {id: 337, name: 'Disney+'}, {id: 9, name: 'Prime'}, {id: 1899, name: 'HBO Max'}, {id: 350, name: 'Apple TV'}, {id: 15, name: 'Hulu'}, {id: 531, name: 'Paramount'}, {id: 386, name: 'Peacock'}, {id: 11, name: 'Mubi'}];
+        const certs = { "US": ["G", "PG", "PG-13", "R", "NC-17"], "GB": ["U", "PG", "12A", "15", "18"], "DE": ["0", "6", "12", "16", "18"] };
 
-        // DOM Elements
-        const views = {
-            setup: document.getElementById('step-0'),
-            wizard: document.getElementById('wizard-container'),
-            results: document.getElementById('results-view'),
-            footer: document.getElementById('wizard-footer'),
-            liveCounter: document.getElementById('live-counter-container'),
-            pagination: document.getElementById('results-pagination')
-        };
-        
-        const ui = {
-            countDisplay: document.getElementById('live-count'),
-            progressBar: document.getElementById('progress-bar'),
-            stepLabel: document.getElementById('step-label'),
-            stepCounter: document.getElementById('step-counter'),
-            nextBtn: document.getElementById('next-btn'),
-            backBtn: document.getElementById('back-btn'),
-            ratingVal: document.getElementById('rating-val'),
-            votesVal: document.getElementById('votes-val')
-        };
+        const ui = { countDisplay: document.getElementById('live-count'), progressBar: document.getElementById('progress-bar'), nextBtn: document.getElementById('next-btn'), backBtn: document.getElementById('back-btn'), ratingVal: document.getElementById('rating-val'), ratingMaxVal: document.getElementById('rating-max-val'), votesVal: document.getElementById('votes-val') };
+        const views = { setup: document.getElementById('step-0'), wizard: document.getElementById('wizard-container'), results: document.getElementById('results-view'), footer: document.getElementById('wizard-footer'), liveCounter: document.getElementById('live-counter-container') };
 
-        // --- Initialization ---
+        // --- Helpers ---
+        function escapeHTML(s) { return s ? s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])) : ''; }
+        function animateValue(obj, start, end, duration) { let startTimestamp = null; const step = (timestamp) => { if (!startTimestamp) startTimestamp = timestamp; const progress = Math.min((timestamp - startTimestamp) / duration, 1); obj.innerHTML = Math.floor(progress * (end - start) + start).toLocaleString(); if (progress < 1) window.requestAnimationFrame(step); }; window.requestAnimationFrame(step); }
 
-        function init() {
-            // Security: Key is not loaded from storage
-        }
+        // --- API & Logic ---
+        let debounceTimer, abortCtrl;
+        function debouncedFetch() { clearTimeout(debounceTimer); debounceTimer = setTimeout(fetchLiveCount, 500); }
 
-        function resetFilters() {
-            filters = {
-                genres: new Set(),
-                excludedGenres: new Set(),
-                genreMode: 'include',
-                rating: 6,
-                minVotes: 0,
-                era: 'any', 
-                dateRange: { from: '', to: '' },
-                sortBy: 'popularity.desc',
-                runtime: { min: 0, max: 999 },
-                providers: new Set(),
-                watchRegion: 'US',
-                language: '',
-                country: '',
-                keywords: '',
-                cast: ''
-            };
-            selectedKeywords.clear();
-            selectedCast.clear();
-            currentPage = 1;
-            
-            // Reset UI elements
-            document.querySelectorAll('.genre-checkbox').forEach(cb => {
-                cb.checked = false;
-                // Clear both Green and Red styles
-                cb.nextElementSibling.classList.remove(
-                    'bg-emerald-500', 'text-slate-900', 'border-emerald-500',
-                    'bg-red-500', 'text-white', 'border-red-500'
-                );
-            });
-            document.querySelectorAll('.toggle-checkbox').forEach(cb => cb.checked = false);
-            
-            document.getElementById('rating-slider').value = 6;
-            ui.ratingVal.innerHTML = `6.0<span class="text-lg text-slate-500">+</span>`;
-            
-            document.getElementById('votes-slider').value = 0;
-            ui.votesVal.innerHTML = `0<span class="text-lg text-slate-500">+</span>`;
-
-            document.getElementById('lang-select').value = '';
-            document.getElementById('region-select').value = 'US';
-            document.getElementById('country-input').value = '';
-            document.getElementById('keyword-input').value = '';
-            document.getElementById('selected-keywords').innerHTML = '';
-            document.getElementById('cast-input').value = '';
-            document.getElementById('selected-cast').innerHTML = '';
-            document.getElementById('date-from').value = '';
-            document.getElementById('date-to').value = '';
-            
-            document.querySelectorAll('.runtime-btn').forEach(btn => {
-                btn.classList.remove('bg-sky-500', 'text-white', 'border-sky-500');
-                btn.classList.add('bg-slate-800', 'border-slate-700');
-            });
-
-            document.querySelectorAll('.era-btn').forEach(btn => {
-                btn.classList.remove('border-sky-500', 'ring-1', 'ring-sky-500/50');
-                btn.classList.add('border-slate-700');
-            });
-            // Reset sorting radio
-            document.querySelector('input[name="sort"][value="popularity.desc"]').checked = true;
-            
-            // Reset Genre Mode
-            filters.genreMode = 'include';
-            updateGenreModeUI();
-
-            fetchLiveCount();
-        }
-
-        async function saveApiKey() {
-            const input = document.getElementById('api-key-input').value.trim();
-            if (!input) {
-                alert("Please enter an API Key.");
-                return;
-            }
-            apiKey = input;
-            const isValid = await verifyAndStart();
-            if (isValid) {
-                // Key is valid. Used in memory only.
-            } else {
-                alert("Invalid API Key. Please check and try again.");
-            }
-        }
-
-        async function verifyAndStart() {
+        async function fetchLiveCount() {
+            if (abortCtrl) abortCtrl.abort(); abortCtrl = new AbortController();
             try {
-                // Test call to get genres
-                const res = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${apiKey}&language=en-US`);
-                const data = await res.json();
-                
-                if (data.genres) {
-                    genres = data.genres;
-                    renderGenres();
-                    startWizard();
-                    return true;
-                } else {
-                    return false;
-                }
-            } catch (e) {
-                console.error(e);
-                return false;
-            }
+                const res = await fetch(buildApiUrl(1), { signal: abortCtrl.signal });
+                if (res.ok) { const data = await res.json(); animateValue(ui.countDisplay, parseInt(ui.countDisplay.innerText.replace(/,/g, '')) || 0, data.total_results || 0, 400); }
+            } catch (e) { if (e.name !== 'AbortError') ui.countDisplay.innerText = "Err"; }
         }
 
-        function startWizard() {
-            views.setup.classList.add('hidden');
-            views.wizard.classList.remove('hidden');
-            views.footer.classList.remove('hidden');
-            views.footer.classList.add('flex');
-            views.liveCounter.classList.remove('hidden');
-            updateUI();
-            fetchLiveCount();
+        function buildApiUrl(p = 1) {
+            const params = new URLSearchParams({ api_key: apiKey, include_adult: 'false', include_video: 'false', page: p, sort_by: filters.sortBy === 'shuffle' ? 'popularity.desc' : filters.sortBy, 'vote_average.gte': filters.rating, 'vote_average.lte': filters.ratingMax, 'vote_count.gte': filters.minVotes, 'watch_region': filters.watchRegion });
+            if (filters.genres.size) params.set('with_genres', Array.from(filters.genres).join(','));
+            if (filters.excludedGenres.size) params.set('without_genres', Array.from(filters.excludedGenres).join(','));
+            if (filters.runtime.min > 0) params.set('with_runtime.gte', filters.runtime.min);
+            if (filters.runtime.max < 999) params.set('with_runtime.lte', filters.runtime.max);
+            if (filters.providers.size) params.set('with_watch_providers', Array.from(filters.providers).join('|'));
+            if (filters.language) params.set('with_original_language', filters.language);
+            if (filters.keywords) params.set('with_keywords', filters.keywords);
+            if (filters.person) params.set('with_people', filters.person);
+            if (filters.certCountry && filters.certification) { params.set('certification_country', filters.certCountry); params.set('certification', filters.certification); }
+            if (filters.era === 'new') params.set('primary_release_date.gte', '2010-01-01');
+            else if (filters.era === 'classic') params.set('primary_release_date.lte', '1999-12-31');
+            return `https://api.themoviedb.org/3/discover/movie?${params.toString()}`;
         }
 
-        // --- Wizard Logic ---
+        async function saveApiKey(e) {
+            const val = document.getElementById('api-key-input').value.trim();
+            if (!val) return alert("Key required");
+            apiKey = val; e.currentTarget.disabled = true; e.currentTarget.innerText = "Verifying...";
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${apiKey}`);
+                if (res.ok) { const data = await res.json(); genres = data.genres; renderGenres(); renderProviders(); startWizard(); }
+                else { alert("Invalid Key"); e.currentTarget.disabled = false; e.currentTarget.innerText = "Start Wizard"; }
+            } catch (e) { alert("Network Error"); e.currentTarget.disabled = false; e.currentTarget.innerText = "Start Wizard"; }
+        }
+
+        function startWizard() { views.setup.classList.add('hidden'); views.wizard.classList.remove('hidden'); views.footer.classList.remove('hidden'); views.liveCounter.classList.remove('hidden'); updateUI(); fetchLiveCount(); }
 
         function updateUI() {
-            // Hide all steps
             document.querySelectorAll('.step-block').forEach(el => el.classList.add('hidden'));
-            // Show current
-            const currentBlock = document.getElementById(`step-${currentStep}`);
-            currentBlock.classList.remove('hidden');
-            
-            // Step Dots
-            document.querySelectorAll('.step-dot').forEach((dot, idx) => {
-                const stepNum = idx + 1;
-                dot.classList.remove('bg-sky-500', 'border-sky-500', 'text-white', 'text-slate-400');
-                if (stepNum === currentStep) {
-                    dot.classList.add('border-sky-500', 'text-sky-500', 'ring-2', 'ring-sky-500/20');
-                } else if (stepNum < currentStep) {
-                    dot.classList.add('bg-sky-500', 'border-sky-500', 'text-white');
-                } else {
-                    dot.classList.add('text-slate-500');
-                }
+            document.getElementById(`step-${currentStep}`).classList.remove('hidden');
+            const progress = (currentStep / 5) * 100; ui.progressBar.style.width = `${progress}%`;
+            document.querySelectorAll('.step-dot').forEach((dot, i) => {
+                dot.classList.remove('border-sky-500', 'bg-sky-500', 'text-white', 'text-slate-500');
+                if (i + 1 === currentStep) dot.classList.add('border-sky-500', 'text-sky-500');
+                else if (i + 1 < currentStep) dot.classList.add('bg-sky-500', 'border-sky-500', 'text-white');
+                else dot.classList.add('text-slate-500');
             });
-
-            // Reset animation
-            currentBlock.classList.remove('slide-up');
-            void currentBlock.offsetWidth; // trigger reflow
-            currentBlock.classList.add('slide-up');
-
-            // Progress Bar
-            const progress = (currentStep / 5) * 100;
-            ui.progressBar.style.width = `${progress}%`;
-            ui.stepCounter.innerText = `Step ${currentStep} of 5`;
-
-            // Labels
             const labels = ['', 'Genre', 'Rating', 'Specs', 'Era', 'Sort'];
-            ui.stepLabel.innerText = labels[currentStep];
-
-            // Buttons
+            document.getElementById('step-label').innerText = labels[currentStep];
+            document.getElementById('step-counter').innerText = `Step ${currentStep} of 5`;
             ui.backBtn.disabled = currentStep === 1;
             ui.nextBtn.innerHTML = currentStep === 5 ? 'See Results <i class="fa-solid fa-check ml-2"></i>' : 'Next <i class="fa-solid fa-arrow-right ml-2"></i>';
         }
 
-        function changeStep(dir) {
-            if (currentStep === 5 && dir === 1) {
-                showResults();
-                return;
-            }
-            if (currentStep + dir < 1 || currentStep + dir > 5) return;
-            
-            currentStep += dir;
-            updateUI();
-        }
+        function changeStep(dir) { if (currentStep === 5 && dir === 1) { showResults(); return; } currentStep += dir; updateUI(); }
+        function goToStep(s) { currentStep = s; updateUI(); }
 
-        function goToStep(step) {
-            currentStep = step;
-            updateUI();
-        }
-
-        // --- Filters & Interactions ---
-
-        function renderGenres() {
-            const grid = document.getElementById('genre-grid');
-            grid.innerHTML = genres.map(g => `
-                <div class="relative">
-                    <input type="checkbox" id="g-${g.id}" value="${g.id}" class="genre-checkbox hidden" onchange="toggleGenre(${g.id}, this)">
-                    <label for="g-${g.id}" class="block w-full p-3 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700 transition-colors text-center text-sm font-medium select-none">
-                        ${g.name}
-                    </label>
-                </div>
-            `).join('');
-        }
+        function renderGenres() { document.getElementById('genre-grid').innerHTML = genres.map(g => `<div class="relative"><input type="checkbox" id="g-${g.id}" class="genre-checkbox hidden" onchange="toggleGenre(${g.id}, this)"><label for="g-${g.id}" class="block w-full p-3 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700 text-center text-sm transition-all">${g.name}</label></div>`).join(''); }
+        function renderProviders() { document.getElementById('provider-grid').innerHTML = providers.map(p => `<div class="relative"><input type="checkbox" id="p-${p.id}" class="toggle-checkbox hidden" onchange="toggleProvider(${p.id})"><label for="p-${p.id}" class="block p-3 bg-slate-800 border border-slate-700 rounded-xl text-center text-[10px] font-bold cursor-pointer hover:bg-slate-700 transition-all">${p.name}</label></div>`).join(''); }
 
         function toggleGenreMode() {
             filters.genreMode = filters.genreMode === 'include' ? 'exclude' : 'include';
-            updateGenreModeUI();
-        }
-
-        function updateGenreModeUI() {
             const btn = document.getElementById('genre-mode-btn');
-            const desc = document.getElementById('genre-mode-desc');
-            
-            if (filters.genreMode === 'include') {
-                btn.innerText = 'Mode: Include';
-                btn.classList.remove('text-red-400', 'border-red-500', 'bg-red-500/10');
-                btn.classList.add('text-emerald-400', 'border-emerald-500', 'bg-emerald-500/10');
-                desc.innerHTML = '<span class="text-emerald-400">Green = Include</span>';
+            btn.innerText = `Mode: ${filters.genreMode === 'include' ? 'Include' : 'Exclude'}`;
+            btn.className = `px-4 py-2 rounded-lg border text-xs font-bold ${filters.genreMode === 'include' ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10' : 'border-red-500 text-red-400 bg-red-500/10'}`;
+        }
+
+        function toggleGenre(id, cb) {
+            if (cb.checked) {
+                if (filters.genreMode === 'include') { filters.genres.add(id); cb.nextElementSibling.classList.add('bg-emerald-500', 'text-slate-900', 'border-emerald-500'); }
+                else { filters.excludedGenres.add(id); cb.nextElementSibling.classList.add('bg-red-500', 'text-white', 'border-red-500'); }
             } else {
-                btn.innerText = 'Mode: Exclude';
-                btn.classList.remove('text-emerald-400', 'border-emerald-500', 'bg-emerald-500/10');
-                btn.classList.add('text-red-400', 'border-red-500', 'bg-red-500/10');
-                desc.innerHTML = '<span class="text-red-400">Red = Exclude</span>';
-            }
-        }
-
-        function toggleGenre(id, checkbox) {
-            const label = checkbox.nextElementSibling;
-            
-            // Remove from both sets first to clear state
-            filters.genres.delete(id);
-            filters.excludedGenres.delete(id);
-            
-            // Reset Styles (Remove both Green and Red variants)
-            label.classList.remove(
-                'bg-emerald-500', 'text-slate-900', 'border-emerald-500', // Include styles
-                'bg-red-500', 'text-white', 'border-red-500' // Exclude styles
-            );
-            
-            if (checkbox.checked) {
-                if (filters.genreMode === 'include') {
-                    filters.genres.add(id);
-                    // Apply Include Style (Green)
-                    label.classList.add('bg-emerald-500', 'text-slate-900', 'border-emerald-500');
-                } else {
-                    filters.excludedGenres.add(id);
-                    // Apply Exclude Style (Red)
-                    label.classList.add('bg-red-500', 'text-white', 'border-red-500');
-                }
-            }
-            
-            debouncedFetch();
-        }
-
-        // Rating Slider
-        document.getElementById('rating-slider').addEventListener('input', (e) => {
-            filters.rating = e.target.value;
-            ui.ratingVal.innerHTML = `${e.target.value}<span class="text-lg text-slate-500">+</span>`;
-            debouncedFetch();
-        });
-
-        // Votes Slider
-        document.getElementById('votes-slider').addEventListener('input', (e) => {
-            filters.minVotes = e.target.value;
-            ui.votesVal.innerHTML = `${e.target.value}<span class="text-lg text-slate-500">+</span>`;
-            debouncedFetch();
-        });
-        
-        // Runtime
-        function setRuntime(min, max) {
-            // Check if already selected (toggle off)
-            if (filters.runtime.min === min && filters.runtime.max === max) {
-                filters.runtime = { min: 0, max: 999 }; // Reset
-                document.querySelectorAll('.runtime-btn').forEach(btn => {
-                    btn.classList.remove('bg-sky-500', 'text-white', 'border-sky-500');
-                    btn.classList.add('bg-slate-800', 'border-slate-700');
-                });
-            } else {
-                // Set new selection
-                filters.runtime = { min, max };
-                document.querySelectorAll('.runtime-btn').forEach(btn => {
-                    btn.classList.remove('bg-sky-500', 'text-white', 'border-sky-500');
-                    btn.classList.add('bg-slate-800', 'border-slate-700');
-                });
-                event.currentTarget.classList.remove('bg-slate-800', 'border-slate-700');
-                event.currentTarget.classList.add('bg-sky-500', 'text-white', 'border-sky-500');
+                filters.genres.delete(id); filters.excludedGenres.delete(id);
+                cb.nextElementSibling.classList.remove('bg-emerald-500', 'text-slate-900', 'bg-red-500', 'text-white', 'border-emerald-500', 'border-red-500');
             }
             debouncedFetch();
         }
-        
-        // Language Handler
-        function setLanguage(val) {
-            filters.language = val;
+
+        document.getElementById('rating-slider').oninput = (e) => { filters.rating = e.target.value; ui.ratingVal.innerText = `${e.target.value}+`; debouncedFetch(); };
+        document.getElementById('rating-max-slider').oninput = (e) => { filters.ratingMax = e.target.value; ui.ratingMaxVal.innerText = `${e.target.value}-`; debouncedFetch(); };
+        document.getElementById('votes-slider').oninput = (e) => { filters.minVotes = e.target.value; ui.votesVal.innerText = `${e.target.value}+`; debouncedFetch(); };
+
+        function setLanguage(v) { filters.language = v; debouncedFetch(); }
+        function setRegion(v) { filters.watchRegion = v; debouncedFetch(); }
+        function toggleProvider(id) { if (filters.providers.has(id)) filters.providers.delete(id); else filters.providers.add(id); debouncedFetch(); }
+        function setCertCountry(v) { 
+            filters.certCountry = v; 
+            const sel = document.getElementById('certification'); sel.innerHTML = '<option value="">Select Rating...</option>' + (certs[v] || []).map(c => `<option value="${c}">${c}</option>`).join('');
             debouncedFetch();
         }
-        
-        // Region Handler
-        function setRegion(val) {
-            filters.watchRegion = val;
+        function setCertification(v) { filters.certification = v; debouncedFetch(); }
+
+        function setRuntime(e, min, max) {
+            if (filters.runtime.min === min && filters.runtime.max === max) { filters.runtime = { min: 0, max: 999 }; e.currentTarget.classList.remove('bg-sky-500', 'text-white', 'border-sky-500'); }
+            else { document.querySelectorAll('.runtime-btn').forEach(b => b.classList.remove('bg-sky-500', 'text-white', 'border-sky-500')); filters.runtime = { min, max }; e.currentTarget.classList.add('bg-sky-500', 'text-white', 'border-sky-500'); }
             debouncedFetch();
         }
 
-        // Country Handler
-        function setCountry(val) {
-            // Only update if empty or valid ISO code length (2 chars)
-            if(val.length === 0 || val.length === 2) {
-                filters.country = val.toUpperCase();
-                debouncedFetch();
-            }
-        }
+        function setEra(e, type) { document.querySelectorAll('.era-btn').forEach(b => b.classList.remove('border-sky-500', 'ring-1', 'ring-sky-500/50')); filters.era = type; e.currentTarget.classList.add('border-sky-500', 'ring-1', 'ring-sky-500/50'); debouncedFetch(); }
 
-        // --- Keyword & Cast Search ---
-        const selectedKeywords = new Map(); // id -> name
-        const selectedCast = new Map(); // id -> name
-
-        let searchTimer;
-        
-        function handleKeywordInput(query) {
-            clearTimeout(searchTimer);
-            if (query.length < 2) {
-                document.getElementById('keyword-suggestions').classList.add('hidden');
-                return;
-            }
-            searchTimer = setTimeout(() => fetchSearch('keyword', query), 300);
-        }
-
-        function handleCastInput(query) {
-            clearTimeout(searchTimer);
-            if (query.length < 2) {
-                document.getElementById('cast-suggestions').classList.add('hidden');
-                return;
-            }
-            searchTimer = setTimeout(() => fetchSearch('person', query), 300);
-        }
-
-        async function fetchSearch(type, query) {
-            const container = type === 'keyword' ? document.getElementById('keyword-suggestions') : document.getElementById('cast-suggestions');
-            try {
-                const res = await fetch(`https://api.themoviedb.org/3/search/${type}?api_key=${apiKey}&query=${query}`);
-                const data = await res.json();
-                
-                if (data.results && data.results.length > 0) {
-                    container.innerHTML = data.results.slice(0, 8).map(k => `
-                        <div onclick="addTag('${type}', ${k.id}, '${k.name.replace(/'/g, "\\'")}')" class="p-3 hover:bg-slate-800 cursor-pointer border-b border-slate-800 last:border-0 text-sm">
-                            <i class="fa-solid fa-${type === 'keyword' ? 'tag' : 'user'} mr-2 text-sky-400 text-xs"></i>${k.name}
-                        </div>
-                    `).join('');
-                    container.classList.remove('hidden');
-                } else {
-                    container.classList.add('hidden');
-                }
-            } catch (e) {
-                console.error("Search error", e);
-            }
+        async function handleTagInput(e, type) {
+            const q = e.target.value; if (q.length < 2) return;
+            const res = await fetch(`https://api.themoviedb.org/3/search/${type === 'keyword' ? 'keyword' : 'person'}?api_key=${apiKey}&query=${q}`);
+            const data = await res.json();
+            const container = document.getElementById(`${type}-suggestions`);
+            container.innerHTML = data.results.slice(0, 5).map(k => `<div onclick="addTag('${type}', ${k.id}, '${escapeHTML(k.name || k.title).replace(/'/g, "\\'")}')" class="p-3 hover:bg-slate-800 cursor-pointer text-xs border-b border-slate-800 text-white">${k.name || k.title}</div>`).join('');
+            container.classList.remove('hidden');
         }
 
         function addTag(type, id, name) {
-            const map = type === 'keyword' ? selectedKeywords : selectedCast;
-            if (!map.has(id)) {
-                map.set(id, name);
-                renderTags(type);
-                updateTagFilter(type);
-                debouncedFetch();
+            const list = filters[type].split(',').filter(x => x);
+            if (!list.includes(id.toString())) {
+                list.push(id); filters[type] = list.join(',');
+                const chip = document.createElement('span');
+                chip.className = "px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-2 bg-sky-500/20 text-sky-400 border border-sky-500/30 mb-2 mr-2";
+                chip.innerHTML = `${escapeHTML(name)} <i class="fa-solid fa-xmark cursor-pointer" onclick="this.parentElement.remove(); removeTagValue('${type}', '${id}')"></i>`;
+                document.getElementById(`selected-${type}`).appendChild(chip); debouncedFetch();
             }
-            const input = type === 'keyword' ? document.getElementById('keyword-input') : document.getElementById('cast-input');
-            const container = type === 'keyword' ? document.getElementById('keyword-suggestions') : document.getElementById('cast-suggestions');
-            input.value = '';
-            container.classList.add('hidden');
+            document.querySelectorAll('[id$="-suggestions"]').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`${type}-input`).value = '';
         }
-
-        function removeTag(type, id) {
-            const map = type === 'keyword' ? selectedKeywords : selectedCast;
-            map.delete(id);
-            renderTags(type);
-            updateTagFilter(type);
-            debouncedFetch();
-        }
-
-        function renderTags(type) {
-            const map = type === 'keyword' ? selectedKeywords : selectedCast;
-            const container = type === 'keyword' ? document.getElementById('selected-keywords') : document.getElementById('selected-cast');
-            
-            container.innerHTML = Array.from(map.entries()).map(([id, name]) => `
-                <span class="inline-flex items-center gap-1 px-3 py-1 bg-sky-500/10 border border-sky-500/30 text-sky-400 rounded-full text-xs font-semibold">
-                    ${name}
-                    <i onclick="removeTag('${type}', ${id})" class="fa-solid fa-xmark ml-1 cursor-pointer hover:text-white"></i>
-                </span>
-            `).join('');
-        }
-
-        function updateTagFilter(type) {
-            if (type === 'keyword') {
-                filters.keywords = Array.from(selectedKeywords.keys()).join(',');
-            } else {
-                filters.cast = Array.from(selectedCast.keys()).join(',');
-            }
-        }
-        
-        // Providers
-        function toggleProvider(id) {
-            if (filters.providers.has(id)) {
-                filters.providers.delete(id);
-            } else {
-                filters.providers.add(id);
-            }
-            debouncedFetch();
-        }
-
-        // Era Selection
-        function setEra(type) {
-            filters.era = type;
-            document.querySelectorAll('.era-btn').forEach(btn => {
-                btn.classList.remove('border-sky-500', 'ring-1', 'ring-sky-500/50');
-                btn.classList.add('border-slate-700');
-            });
-            // Highlight current
-            event.currentTarget.classList.remove('border-slate-700');
-            event.currentTarget.classList.add('border-sky-500', 'ring-1', 'ring-sky-500/50');
-            
-            // Clear custom date
-            document.getElementById('date-from').value = '';
-            document.getElementById('date-to').value = '';
-            filters.dateRange = { from: '', to: '' };
-
-            debouncedFetch();
-        }
-
-        function setCustomDate() {
-            const from = document.getElementById('date-from').value;
-            const to = document.getElementById('date-to').value;
-            
-            if (from || to) {
-                filters.era = 'custom';
-                filters.dateRange = { from, to };
-                
-                // Deselect eras
-                document.querySelectorAll('.era-btn').forEach(btn => {
-                    btn.classList.remove('border-sky-500', 'ring-1', 'ring-sky-500/50');
-                    btn.classList.add('border-slate-700');
-                });
-                
-                debouncedFetch();
-            }
-        }
-
-        // Sort Selection
-        document.querySelectorAll('input[name="sort"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                filters.sortBy = e.target.value;
-                debouncedFetch();
-            });
-        });
-
-        // --- API Integration ---
-
-        let debounceTimer;
-        function debouncedFetch() {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(fetchLiveCount, 500);
-        }
-
-        function buildApiUrl(page = 1) {
-            let url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&include_adult=false&include_video=false&page=${page}`;
-            
-            // Genres
-            if (filters.genres.size > 0) {
-                url += `&with_genres=${Array.from(filters.genres).join(',')}`;
-            }
-            if (filters.excludedGenres.size > 0) {
-                url += `&without_genres=${Array.from(filters.excludedGenres).join(',')}`;
-            }
-
-            // Rating
-            url += `&vote_average.gte=${filters.rating}`;
-            url += `&vote_count.gte=${filters.minVotes}`;
-            
-            // Advanced Filters
-            if (filters.runtime.min > 0) url += `&with_runtime.gte=${filters.runtime.min}`;
-            if (filters.runtime.max < 999) url += `&with_runtime.lte=${filters.runtime.max}`;
-            
-            if (filters.providers.size > 0) {
-                url += `&with_watch_providers=${Array.from(filters.providers).join('|')}`;
-            }
-            if (filters.watchRegion) {
-                url += `&watch_region=${filters.watchRegion}`;
-            }
-
-            if (filters.language) {
-                url += `&with_original_language=${filters.language}`;
-            }
-            if (filters.country) {
-                url += `&with_origin_country=${filters.country}`;
-            }
-            if (filters.keywords) {
-                url += `&with_keywords=${filters.keywords}`;
-            }
-            if (filters.cast) {
-                url += `&with_cast=${filters.cast}`;
-            }
-
-            // Era / Date Range
-            if (filters.era === 'new') {
-                url += `&primary_release_date.gte=2010-01-01`;
-            } else if (filters.era === 'classic') {
-                url += `&primary_release_date.lte=1999-12-31`;
-            } else if (filters.era === 'custom') {
-                if (filters.dateRange.from) url += `&primary_release_date.gte=${filters.dateRange.from}`;
-                if (filters.dateRange.to) url += `&primary_release_date.lte=${filters.dateRange.to}`;
-            }
-
-            // Sort
-            // If shuffle, we fetch by popularity descending usually to get good candidates, then shuffle locally
-            const apiSort = filters.sortBy === 'shuffle' ? 'popularity.desc' : filters.sortBy;
-            url += `&sort_by=${apiSort}`;
-
-            return url;
-        }
-
-        async function fetchLiveCount() {
-            ui.countDisplay.classList.add('opacity-50');
-            try {
-                const url = buildApiUrl(1);
-                const res = await fetch(url);
-                const data = await res.json();
-                
-                const count = data.total_results || 0;
-                animateValue(ui.countDisplay, parseInt(ui.countDisplay.innerText.replace(/,/g, '')) || 0, count, 500);
-                
-            } catch (e) {
-                console.error("Fetch error", e);
-                ui.countDisplay.innerText = "Err";
-            }
-            ui.countDisplay.classList.remove('opacity-50');
-        }
+        function removeTagValue(t, id) { let list = filters[t].split(',').filter(x => x && x !== id.toString()); filters[t] = list.join(','); debouncedFetch(); }
 
         async function showResults() {
-            views.wizard.classList.add('hidden');
-            views.footer.classList.add('hidden');
-            views.liveCounter.classList.add('hidden');
-            views.results.classList.remove('hidden');
-            
-            currentPage = 1;
-            const grid = document.getElementById('movies-grid');
-            grid.innerHTML = '';
-            
+            currentPage = 1; document.getElementById('movies-grid').innerHTML = '';
+            views.wizard.classList.add('hidden'); views.footer.classList.add('hidden'); views.results.classList.remove('hidden'); views.liveCounter.classList.add('hidden');
             fetchResults();
         }
 
         async function fetchResults() {
-            const grid = document.getElementById('movies-grid');
-            const spinner = document.getElementById('loading-spinner');
-            const pagination = document.getElementById('results-pagination');
-            
+            const grid = document.getElementById('movies-grid'), spinner = document.getElementById('loading-spinner');
             spinner.classList.remove('hidden');
-            pagination.classList.add('hidden');
-
             try {
-                const url = buildApiUrl(currentPage);
-                const res = await fetch(url);
-                const data = await res.json();
-                
-                spinner.classList.add('hidden');
-                totalPagesAvailable = data.total_pages;
-
-                if (data.results.length === 0 && currentPage === 1) {
-                    grid.innerHTML = `<div class="col-span-full text-center py-20 text-slate-500">No movies found matching these specific filters. Try loosening the criteria!</div>`;
-                    return;
-                }
-                
-                let movies = data.results;
-                if (filters.sortBy === 'shuffle') {
-                    movies = movies.sort(() => Math.random() - 0.5);
-                }
-
-                movies.forEach(movie => {
-                    const poster = movie.poster_path 
-                        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` 
-                        : 'https://via.placeholder.com/500x750/1e293b/475569?text=No+Poster';
-                    
-                    const year = movie.release_date ? movie.release_date.split('-')[0] : 'N/A';
-                    
-                    const card = document.createElement('a');
-                    card.href = `https://letterboxd.com/tmdb/${movie.id}`;
-                    card.target = '_blank';
-                    card.className = 'movie-card block relative rounded-xl overflow-hidden shadow-xl bg-slate-800 group transition-all hover:ring-2 hover:ring-sky-500 fade-in';
-                    card.innerHTML = `
-                        <div class="aspect-[2/3] w-full relative overflow-hidden">
-                            <img src="${poster}" alt="${movie.title}" class="w-full h-full object-cover">
-                            <div class="overlay absolute inset-0 bg-black/80 opacity-0 transition-opacity duration-300 p-6 flex flex-col justify-center text-center">
-                                <p class="text-slate-300 text-xs md:text-sm line-clamp-6 mb-4">${movie.overview}</p>
-                                <div class="flex flex-col items-center gap-2">
-                                    <span class="text-sky-400 font-bold text-lg"><i class="fa-solid fa-star mr-1"></i> ${movie.vote_average.toFixed(1)}</span>
-                                    <span class="text-white/50 text-[10px] uppercase tracking-widest font-bold">View on Letterboxd</span>
-                                </div>
-                            </div>
-                            <div class="absolute top-2 right-2 bg-slate-900/80 px-2 py-1 rounded text-xs font-bold text-white border border-slate-700">
-                                ${year}
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-bold text-white truncate" title="${movie.title}">${movie.title}</h3>
-                            <div class="flex justify-between items-center mt-2 text-xs text-slate-400">
-                                <span>${findGenreNames(movie.genre_ids)}</span>
-                            </div>
-                        </div>
-                    `;
+                const res = await fetch(buildApiUrl(currentPage)), data = await res.json(); spinner.classList.add('hidden');
+                let movies = data.results; if (filters.sortBy === 'shuffle') movies = movies.sort(() => Math.random() - 0.5);
+                movies.forEach(m => {
+                    const poster = m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : 'https://via.placeholder.com/500x750/1e293b/475569?text=No+Poster';
+                    const year = m.release_date ? m.release_date.split('-')[0] : 'N/A';
+                    const card = document.createElement('a'); card.href = `https://letterboxd.com/tmdb/${m.id}`; card.target = "_blank"; card.rel = "noopener noreferrer";
+                    card.className = "movie-card relative rounded-xl overflow-hidden shadow-2xl bg-slate-800 group h-full flex flex-col";
+                    card.innerHTML = `<div class="aspect-[2/3] w-full relative overflow-hidden"><img src="${poster}" class="w-full h-full object-cover"><div class="overlay absolute inset-0 bg-black/80 opacity-0 transition-opacity duration-300 p-4 flex flex-col justify-center text-center"><p class="text-slate-300 text-[10px] line-clamp-6 mb-2">${escapeHTML(m.overview)}</p><span class="text-sky-400 font-bold text-lg">★ ${m.vote_average.toFixed(1)}</span></div><div class="absolute top-2 right-2 bg-slate-900/80 px-2 py-1 rounded text-[10px] font-bold text-white border border-slate-700">${year}</div></div><div class="p-3 bg-slate-800 flex-grow"><h3 class="font-bold text-sm text-white truncate">${escapeHTML(m.title)}</h3></div>`;
                     grid.appendChild(card);
                 });
-
-                if (currentPage < totalPagesAvailable) {
-                    pagination.classList.remove('hidden');
-                }
-
-            } catch (e) {
-                spinner.classList.add('hidden');
-                grid.innerHTML += `<div class="col-span-full text-center text-red-400">Error loading results. Check console.</div>`;
-            }
+                const pag = document.getElementById('results-pagination');
+                if (data.total_pages > currentPage) pag.classList.remove('hidden'); else pag.classList.add('hidden');
+            } catch (e) { spinner.innerHTML = `<p class="text-red-400">Error: ${e.message}</p>`; }
         }
 
-        function loadMoreResults() {
-            currentPage++;
-            fetchResults();
-        }
-
-        function findGenreNames(ids) {
-            if (!ids || ids.length === 0) return '';
-            return ids.slice(0, 2).map(id => {
-                const g = genres.find(x => x.id === id);
-                return g ? g.name : '';
-            }).join(', ');
-        }
-
-        function modifyFilters() {
-            views.results.classList.add('hidden');
-            views.wizard.classList.remove('hidden');
-            views.footer.classList.remove('hidden');
-            views.footer.classList.add('flex');
-            views.liveCounter.classList.remove('hidden');
-            updateUI();
-        }
-
-        function restartWizard() {
-            if (confirm("Reset all filters and start over?")) {
-                resetFilters();
-                views.results.classList.add('hidden');
-                views.wizard.classList.remove('hidden');
-                views.footer.classList.remove('hidden');
-                views.footer.classList.add('flex');
-                views.liveCounter.classList.remove('hidden');
-                currentStep = 1;
-                updateUI();
-            }
-        }
-
-        // Helper: Animate Number
-        function animateValue(obj, start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                obj.innerHTML = Math.floor(progress * (end - start) + start).toLocaleString();
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            };
-            window.requestAnimationFrame(step);
-        }
-
-        // Start
-        init();
-
+        function loadMoreResults(e) { currentPage++; e.target.disabled = true; e.target.innerText = "Loading..."; fetchResults().then(() => { e.target.disabled = false; e.target.innerText = "Load More Results"; }); }
+        function modifyFilters() { views.results.classList.add('hidden'); views.wizard.classList.remove('hidden'); views.footer.classList.remove('hidden'); views.liveCounter.classList.remove('hidden'); }
     </script>
 </body>
 </html>

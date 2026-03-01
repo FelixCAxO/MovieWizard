@@ -40,21 +40,27 @@ To use **MovieWizard**, you **must** have your own API key from The Movie Databa
 
 ```text
 MovieWizard/
-|-- interface.html       # Main Visual Web Interface
-|-- smart_filter.py      # Python CLI for Bulk Downloading
-|-- requirements.txt     # Python Dependencies
-|-- start.bat            # Launcher for Windows
-|-- start.sh             # Launcher for Linux
-|-- start.command        # Launcher for macOS
-|-- __tests__/           # Automated Test Suite
-`-- README.md            # Documentation
+├── interface.html       # Main Visual Web Interface
+├── main.py              # Entry point for CLI Tool
+├── requirements.txt     # Python Dependencies
+├── start.bat            # Launcher for Windows
+├── start.sh             # Launcher for Linux/macOS
+├── src/                 # Application Source Code
+│   ├── app/             # CLI Application Logic
+│   ├── components/      # UI Components (JS)
+│   ├── constants/       # Shared Constants (Genres, Providers)
+│   ├── services/        # API Clients & External Services
+│   └── utils/           # Shared Helpers
+├── tests/               # Automated Test Suite (Integration & Unit)
+├── docs/                # Documentation
+└── scripts/             # Native OS Scripts
 ```
 
 ## Installation
 
 ### Prerequisites
 
-1. **Python 3.x** (Required for the CLI tool only).
+1. **Python 3.8+** (Required for the CLI tool only).
 2. **TMDb API Key:** You can get one for free at [themoviedb.org](https://www.themoviedb.org/settings/api).
 
 ### Setup
@@ -81,8 +87,7 @@ pip install -r requirements.txt
 You do not need Python for this. Just double-click the starter script for your OS:
 
 * **Windows:** Double-click `start.bat`
-* **macOS:** Double-click `start.command`
-* **Linux:** Run `./start.sh`
+* **macOS/Linux:** Run `./start.sh` or `./start.command`
 
 *Alternatively, simply open `interface.html` in Chrome, Firefox, or Edge.*
 
@@ -90,17 +95,17 @@ You do not need Python for this. Just double-click the starter script for your O
 
 *Best for: Generating large lists of movies (JSON) based on strict criteria.*
 
-Run the python script to start the interactive terminal wizard:
+Run the entry point to start the interactive terminal wizard:
 
 ```bash
-python smart_filter.py
+python main.py
 ```
 
 **The script will prompt you for:**
 
 1. **API Key** (Input once per session).
 2. **Genre** (e.g., "Science Fiction").
-3. **Specific Filters** (Country origin, Runtime, Provider).
+3. **Specific Filters** (Country origin, Runtime, Provider, Certification).
 4. **Year Range** (Scans year-by-year for maximum results).
 
 **Output:**
@@ -112,12 +117,15 @@ The script saves a detailed JSON file (e.g., `deep_database_150.json`) containin
 
 **API Key Security:**
 
-* **Web UI:** The key is stored in your browser's temporary memory. It is lost when you close the tab.
-* **CLI:** You can hardcode your key in `smart_filter.py` line 9 to skip entry every time:
-```python
-# smart_filter.py
-DEFAULT_API_KEY = "your_key_here"
+* **Web UI:** The key is used in-memory only for the current session. It is lost when you close the tab.
+* **CLI:** Preferred method is using the `TMDB_API_KEY` environment variable. If not set, the script will prompt you.
+```bash
+# Set environment variable (Windows)
+set TMDB_API_KEY=your_key_here
+# Set environment variable (Linux/macOS)
+export TMDB_API_KEY=your_key_here
 ```
+*Note: We strongly discourage hardcoding keys directly into source files.*
 
 ## Contributing
 
