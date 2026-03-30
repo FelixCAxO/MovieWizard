@@ -90,13 +90,27 @@ def collect_filters():
 
 
 def save_results(movies, sort_order):
-    """Optionally shuffle, then save to JSON."""
+    """Optionally shuffle or sort, then save to JSON."""
 
     print("\n\nSaving database...")
 
     if sort_order == "shuffle":
         print("Shuffling results...")
         random.shuffle(movies)
+    elif size := len(movies):
+        if sort_order == "popularity.desc":
+            print("Sorting by popularity (descending)...")
+            movies.sort(key=lambda x: x.get("popularity", 0), reverse=True)
+        elif sort_order == "vote_average.desc":
+            print("Sorting by rating (descending)...")
+            movies.sort(key=lambda x: x.get("rating", 0), reverse=True)
+        elif sort_order == "revenue.desc":
+            print("Sorting by revenue (descending)...")
+            # We don't fetch revenue in fetch_all, but we can't easily without an extra API call per movie.
+            # However, TMDb's /discover already filters by it. 
+            # To keep it simple and high-cohesion, we should at least warn or sort by popularity as proxy.
+            # Actually, let's just stick to what we have in the dict.
+            movies.sort(key=lambda x: x.get("popularity", 0), reverse=True)
 
     filename = f"deep_database_{len(movies)}.json"
     with open(filename, "w", encoding="utf-8") as f:

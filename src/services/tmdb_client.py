@@ -70,6 +70,8 @@ def fetch_all(api_key, filters):
                     "title": m["title"],
                     "year": year,
                     "rating": m.get("vote_average"),
+                    "popularity": m.get("popularity"),
+                    "vote_count": m.get("vote_count"),
                     "poster": m.get("poster_path"),
                     "overview": m.get("overview"),
                 })
