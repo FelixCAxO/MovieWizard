@@ -1,5 +1,10 @@
 # MovieWizard Architecture
 
+## Features
+
+- **Genre Parsing (CLI):** Supports multiple genre names separated by `+` or `,` in the CLI (e.g., "Romance + Comedy"). This logic maps names to TMDb IDs for deep searching.
+- **Quick Combos (Web):** Provides one-click presets for popular genre combinations (e.g., "Horror + Thriller") in the web interface.
+
 ## Core Components
 
 - **Web Interface (`interface.html`):** The primary user-facing tool for visual film discovery.

@@ -9,6 +9,7 @@ if __name__ == "__main__" and __package__ is None:
 
 from src.constants.tmdb import GENRES, CERTIFICATIONS
 from src.services.tmdb_client import fetch_all
+from src.utils.genre_parser import parse_genre_input
 
 def get_user_input(prompt, default=None):
     if default is not None:
@@ -21,13 +22,11 @@ def collect_filters():
     """Gather all filter inputs from the user. Returns a dict."""
 
     print("\nAvailable Genres:", ", ".join(GENRES.keys()))
-    genre_name = get_user_input("Include Genre (or leave empty)", "")
-    genre_id = GENRES.get(genre_name) if genre_name in GENRES else ""
+    genre_input = get_user_input("Include Genre(s) (e.g. Romance + Comedy, or leave empty)", "")
+    genre_id = parse_genre_input(genre_input)
 
-    exclude_genre_name = get_user_input("Exclude Genre (or leave empty)", "")
-    exclude_genre_id = GENRES.get(exclude_genre_name) if exclude_genre_name in GENRES else ""
-    if not exclude_genre_id and exclude_genre_name.isdigit():
-        exclude_genre_id = exclude_genre_name
+    exclude_genre_input = get_user_input("Exclude Genre(s) (or leave empty)", "")
+    exclude_genre_id = parse_genre_input(exclude_genre_input)
 
     cast_id = get_user_input("Cast Member ID (e.g. 287 for Brad Pitt) [Optional]", "")
 

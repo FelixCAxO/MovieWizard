@@ -88,6 +88,17 @@
                         </div>
                         <button onclick="toggleGenreMode()" id="genre-mode-btn" class="px-4 py-2 rounded-lg border border-emerald-500 text-emerald-400 text-xs font-bold bg-emerald-500/10">Mode: Include</button>
                     </div>
+
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-500 uppercase mb-3">Quick Combos</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="applyCombinedGenre('Romance', 'Comedy')" class="px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs hover:border-sky-500 transition-all">Romance + Comedy</button>
+                            <button onclick="applyCombinedGenre('Action', 'Adventure')" class="px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs hover:border-sky-500 transition-all">Action + Adventure</button>
+                            <button onclick="applyCombinedGenre('Horror', 'Thriller')" class="px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs hover:border-sky-500 transition-all">Horror + Thriller</button>
+                            <button onclick="applyCombinedGenre('Science Fiction', 'Action')" class="px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs hover:border-sky-500 transition-all">Sci-Fi + Action</button>
+                        </div>
+                    </div>
+
                     <div id="genre-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
                 </div>
 
@@ -289,6 +300,17 @@
         function changeStep(dir) { if (currentStep === 5 && dir === 1) { showResults(); return; } currentStep += dir; updateUI(); }
         function goToStep(s) { currentStep = s; updateUI(); }
 
+        function applyCombinedGenre(g1, g2) {
+            const id1 = genres.find(g => g.name === g1)?.id;
+            const id2 = genres.find(g => g.name === g2)?.id;
+            if (id1 && id2) {
+                const cb1 = document.getElementById(`g-${id1}`);
+                const cb2 = document.getElementById(`g-${id2}`);
+                if (cb1 && !cb1.checked) { cb1.checked = true; toggleGenre(id1, cb1); }
+                if (cb2 && !cb2.checked) { cb2.checked = true; toggleGenre(id2, cb2); }
+            }
+        }
+
         function renderGenres() { document.getElementById('genre-grid').innerHTML = genres.map(g => `<div class="relative"><input type="checkbox" id="g-${g.id}" class="genre-checkbox hidden" onchange="toggleGenre(${g.id}, this)"><label for="g-${g.id}" class="block w-full p-3 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700 text-center text-sm transition-all">${g.name}</label></div>`).join(''); }
         function renderProviders() { document.getElementById('provider-grid').innerHTML = providers.map(p => `<div class="relative"><input type="checkbox" id="p-${p.id}" class="toggle-checkbox hidden" onchange="toggleProvider(${p.id})"><label for="p-${p.id}" class="block p-3 bg-slate-800 border border-slate-700 rounded-xl text-center text-[10px] font-bold cursor-pointer hover:bg-slate-700 transition-all">${p.name}</label></div>`).join(''); }
 
@@ -365,12 +387,15 @@
             const grid = document.getElementById('movies-grid'), spinner = document.getElementById('loading-spinner');
             spinner.classList.remove('hidden');
             try {
-                const res = await fetch(buildApiUrl(currentPage)), data = await res.json(); spinner.classList.add('hidden');
+                const res = await fetch(buildApiUrl(currentPage));
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json(); spinner.classList.add('hidden');
                 let movies = data.results; if (filters.sortBy === 'shuffle') movies = movies.sort(() => Math.random() - 0.5);
                 movies.forEach(m => {
                     const poster = m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : 'https://via.placeholder.com/500x750/1e293b/475569?text=No+Poster';
                     const year = m.release_date ? m.release_date.split('-')[0] : 'N/A';
-                    const card = document.createElement('a'); card.href = `https://letterboxd.com/tmdb/${m.id}`; card.target = "_blank"; card.rel = "noopener noreferrer";
+                    const card = document.createElement('a'); card.href = `https://letterboxd.com/tmdb/${m.id}`; 
+                    card.target="_blank"; card.rel="noopener noreferrer";
                     card.className = "movie-card relative rounded-xl overflow-hidden shadow-2xl bg-slate-800 group h-full flex flex-col";
                     card.innerHTML = `<div class="aspect-[2/3] w-full relative overflow-hidden"><img src="${poster}" class="w-full h-full object-cover"><div class="overlay absolute inset-0 bg-black/80 opacity-0 transition-opacity duration-300 p-4 flex flex-col justify-center text-center"><p class="text-slate-300 text-[10px] line-clamp-6 mb-2">${escapeHTML(m.overview)}</p><span class="text-sky-400 font-bold text-lg">★ ${m.vote_average.toFixed(1)}</span></div><div class="absolute top-2 right-2 bg-slate-900/80 px-2 py-1 rounded text-[10px] font-bold text-white border border-slate-700">${year}</div></div><div class="p-3 bg-slate-800 flex-grow"><h3 class="font-bold text-sm text-white truncate">${escapeHTML(m.title)}</h3></div>`;
                     grid.appendChild(card);
